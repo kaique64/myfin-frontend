@@ -7,14 +7,15 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { Variant } from './types/variant';
 
 interface Props {
-  mode?: 'success' | 'danger' | 'warning'
+  variant?: Variant
   disabled?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  mode: 'success',
+  variant: 'primary',
   disabled: false
 })
 
@@ -24,14 +25,16 @@ defineEmits<{
 
 const buttonClasses = computed(() => {
   const baseClasses = 'px-4 py-2 rounded-md font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
-  
-  const modeClasses = {
+
+  const variantClasses: Record<Variant, string> = {
     success: 'bg-green-600 hover:bg-green-700 text-white',
     danger: 'bg-red-500 hover:bg-red-600 text-white', 
-    warning: 'bg-yellow-500 hover:bg-yellow-600 text-white'
+    warning: 'bg-yellow-500 hover:bg-yellow-600 text-white',
+    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
+    info: 'bg-cyan-600 hover:bg-cyan-700 text-white'
   }
   
-  return `${baseClasses} ${modeClasses[props.mode]}`
+  return `${baseClasses} ${variantClasses[props.variant]}`
 })
 </script>
 

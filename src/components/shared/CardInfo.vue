@@ -24,11 +24,12 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { Variant } from './types/variant'
 
 export interface CardInfoProps {
   title: string
   value: number | string
-  variant?: 'primary' | 'success' | 'danger' | 'warning' | 'info'
+  variant?: Variant
   currency?: string
   showCurrency?: boolean
   locale?: string

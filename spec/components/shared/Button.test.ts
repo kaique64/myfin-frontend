@@ -22,12 +22,12 @@ describe('Given a Button component', () => {
       expect(wrapper.element.tagName).toBe('BUTTON')
     })
 
-    it('Then it should apply success mode classes by default', () => {
-      expect(wrapper.classes()).toContain('bg-green-600')
+    it('Then it should apply primary variant classes by default', () => {
+      expect(wrapper.classes()).toContain('bg-blue-600')
     })
 
-    it('Then it should apply hover classes for success mode', () => {
-      expect(wrapper.classes()).toContain('hover:bg-green-700')
+    it('Then it should apply hover classes for primary variant', () => {
+      expect(wrapper.classes()).toContain('hover:bg-blue-700')
     })
 
     it('Then it should apply white text color', () => {
@@ -59,13 +59,13 @@ describe('Given a Button component', () => {
     })
   })
 
-  describe('When rendered with danger mode', () => {
+  describe('When rendered with danger variant', () => {
     let wrapper: VueWrapper
 
     beforeEach(() => {
       wrapper = mount(Button, {
         props: {
-          mode: 'danger',
+          variant: 'danger',
         },
       })
     })
@@ -83,13 +83,13 @@ describe('Given a Button component', () => {
     })
   })
 
-  describe('When rendered with warning mode', () => {
+  describe('When rendered with warning variant', () => {
     let wrapper: VueWrapper
 
     beforeEach(() => {
       wrapper = mount(Button, {
         props: {
-          mode: 'warning',
+          variant: 'warning',
         },
       })
     })
@@ -107,19 +107,51 @@ describe('Given a Button component', () => {
     })
   })
 
-  describe('When rendered with success mode explicitly', () => {
+  describe('When rendered with success variant explicitly', () => {
     let wrapper: VueWrapper
 
     beforeEach(() => {
       wrapper = mount(Button, {
         props: {
-          mode: 'success',
+          variant: 'success',
         },
       })
     })
 
     it('Then it should apply success background color', () => {
       expect(wrapper.classes()).toContain('bg-green-600')
+    })
+
+    it('Then it should apply success hover color', () => {
+      expect(wrapper.classes()).toContain('hover:bg-green-700')
+    })
+
+    it('Then it should apply white text color', () => {
+      expect(wrapper.classes()).toContain('text-white')
+    })
+  })
+
+  describe('When rendered with info variant', () => {
+    let wrapper: VueWrapper
+
+    beforeEach(() => {
+      wrapper = mount(Button, {
+        props: {
+          variant: 'info',
+        },
+      })
+    })
+
+    it('Then it should apply info background color', () => {
+      expect(wrapper.classes()).toContain('bg-cyan-600')
+    })
+
+    it('Then it should apply info hover color', () => {
+      expect(wrapper.classes()).toContain('hover:bg-cyan-700')
+    })
+
+    it('Then it should apply white text color', () => {
+      expect(wrapper.classes()).toContain('text-white')
     })
   })
 
