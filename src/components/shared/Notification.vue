@@ -8,7 +8,7 @@
     :leave-from-class="leaveFromClass"
     :leave-to-class="leaveToClass"
   >
-    <div v-if="visible" :class="notificationClasses" :style="positionStyle">
+    <div v-if="visible" :class="notificationClasses">
       <div class="flex items-center justify-between">
         <div class="flex-1">
           <slot>{{ message }}</slot>
@@ -88,7 +88,7 @@ const emit = defineEmits<{
 let timeoutId: ReturnType<typeof setTimeout> | null = null
 
 const notificationClasses = computed(() => {
-  const baseClasses = 'fixed px-4 py-2 rounded shadow-lg text-white z-50'
+  const baseClasses = 'px-4 py-2 rounded shadow-lg text-white relative max-w-sm w-full'
 
   const variantClasses: Record<Variant, string> = {
     primary: 'bg-blue-500',
@@ -99,19 +99,6 @@ const notificationClasses = computed(() => {
   }
 
   return `${baseClasses} ${variantClasses[props.variant]} ${props.customClass}`.trim()
-})
-
-const positionStyle = computed(() => {
-  const positions: Record<NotificationPosition, Record<string, string>> = {
-    'top-left': { top: '1rem', left: '1rem' },
-    'top-right': { top: '1rem', right: '1rem' },
-    'bottom-left': { bottom: '1rem', left: '1rem' },
-    'bottom-right': { bottom: '1rem', right: '1rem' },
-    'top-center': { top: '1rem', left: '50%', transform: 'translateX(-50%)' },
-    'bottom-center': { bottom: '1rem', left: '50%', transform: 'translateX(-50%)' },
-  }
-
-  return positions[props.position]
 })
 
 // Auto-close functionality

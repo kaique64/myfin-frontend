@@ -150,48 +150,34 @@
         />
       </div>
 
-      <Notification
-        :visible="showNotification"
-        :message="notificationMessage"
-        variant="primary"
-        @close="showNotification = false"
-      />
+      <!-- Sistema de notificações global -->
+      <NotificationContainer />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-
 import CardInfo from '../components/shared/CardInfo.vue'
 import TransactionItem from '../components/shared/TransactionItem.vue'
 import Title from '../components/shared/Title.vue'
 import Divider from '@/components/shared/Divider.vue'
-import Notification from '../components/shared/Notification.vue'
+import NotificationContainer from '../components/shared/NotificationContainer.vue'
+import { useNotifications } from '../composables/useNotifications'
 
-const showNotification = ref(false)
-const notificationMessage = ref('')
-
-const showMessage = (message: string) => {
-  notificationMessage.value = message
-  showNotification.value = true
-  setTimeout(() => {
-    showNotification.value = false
-  }, 3000)
-}
+const { success, error, info } = useNotifications()
 
 const handleEdit = (event: MouseEvent) => {
   console.log('Edit clicked:', event)
-  showMessage('Editar transação')
+  success('Transação editada com sucesso!', { position: 'top-right' })
 }
 
 const handleDelete = (event: MouseEvent) => {
   console.log('Delete clicked:', event)
-  showMessage('Excluir transação')
+  error('Transação excluída', { position: 'bottom-right' })
 }
 
 const handleClick = (event: MouseEvent) => {
   console.log('Item clicked:', event)
-  showMessage('Item clicado')
+  info('Item selecionado', { position: 'top-center' })
 }
 </script>

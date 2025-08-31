@@ -41,13 +41,14 @@ describe('Given a Notification component', () => {
 
     it('Then it should apply base classes', () => {
       const notificationDiv = wrapper.find('div')
-      expect(notificationDiv.classes()).toContain('fixed')
       expect(notificationDiv.classes()).toContain('px-4')
       expect(notificationDiv.classes()).toContain('py-2')
       expect(notificationDiv.classes()).toContain('rounded')
       expect(notificationDiv.classes()).toContain('shadow-lg')
       expect(notificationDiv.classes()).toContain('text-white')
-      expect(notificationDiv.classes()).toContain('z-50')
+      expect(notificationDiv.classes()).toContain('relative')
+      expect(notificationDiv.classes()).toContain('max-w-sm')
+      expect(notificationDiv.classes()).toContain('w-full')
     })
 
     it('Then it should apply primary variant by default', () => {
@@ -55,10 +56,11 @@ describe('Given a Notification component', () => {
       expect(notificationDiv.classes()).toContain('bg-blue-500')
     })
 
-    it('Then it should apply bottom-right position by default', () => {
+    it('Then it should not apply position styles (managed by container)', () => {
       const element = wrapper.find('div').element as HTMLElement
-      expect(element.style.bottom).toBe('1rem')
-      expect(element.style.right).toBe('1rem')
+      // The notification component no longer manages positioning
+      // This is now handled by NotificationContainer
+      expect(element.style.position).not.toBe('fixed')
     })
 
     it('Then it should show close button by default', () => {
@@ -142,7 +144,7 @@ describe('Given a Notification component', () => {
       },
     ] as const
 
-    positions.forEach(({ position, expectedStyle }) => {
+    positions.forEach(({ position }) => {
       describe(`When position is ${position}`, () => {
         let wrapper: VueWrapper
 
@@ -156,14 +158,10 @@ describe('Given a Notification component', () => {
           })
         })
 
-        it(`Then it should apply correct positioning styles for ${position}`, () => {
+        it(`Then positioning is managed by container, not component`, () => {
           const element = wrapper.find('div').element as HTMLElement
-          Object.entries(expectedStyle).forEach(([key, value]) => {
-            expect(
-              element.style.getPropertyValue(key) ||
-                (element.style as unknown as Record<string, string>)[key],
-            ).toBe(value)
-          })
+          // Positioning is now handled by NotificationContainer
+          expect(element.style.position).not.toBe('fixed')
         })
       })
     })
@@ -190,9 +188,12 @@ describe('Given a Notification component', () => {
 
     it('Then it should still apply base classes', () => {
       const notificationDiv = wrapper.find('div')
-      expect(notificationDiv.classes()).toContain('fixed')
       expect(notificationDiv.classes()).toContain('px-4')
       expect(notificationDiv.classes()).toContain('py-2')
+      expect(notificationDiv.classes()).toContain('rounded')
+      expect(notificationDiv.classes()).toContain('shadow-lg')
+      expect(notificationDiv.classes()).toContain('text-white')
+      expect(notificationDiv.classes()).toContain('relative')
     })
   })
 
@@ -294,16 +295,14 @@ describe('Given a Notification component', () => {
       })
     })
 
-    it('Then it should apply all custom properties', () => {
+    it('Then positioning is managed by container', () => {
       const notificationDiv = wrapper.find('div')
       expect(notificationDiv.classes()).toContain('bg-green-500')
       expect(notificationDiv.classes()).toContain('font-bold')
       expect(notificationDiv.classes()).toContain('text-lg')
 
       const element = notificationDiv.element as HTMLElement
-      expect(element.style.top).toBe('1rem')
-      expect(element.style.left).toBe('50%')
-      expect(element.style.transform).toBe('translateX(-50%)')
+      expect(element.style.position).not.toBe('fixed')
     })
 
     it('Then it should display the message', () => {
@@ -348,8 +347,11 @@ describe('Given a Notification component', () => {
 
     it('Then it should still apply styling classes', () => {
       const notificationDiv = wrapper.find('div')
-      expect(notificationDiv.classes()).toContain('fixed')
+      expect(notificationDiv.classes()).toContain('px-4')
+      expect(notificationDiv.classes()).toContain('py-2')
+      expect(notificationDiv.classes()).toContain('rounded')
       expect(notificationDiv.classes()).toContain('bg-blue-500')
+      expect(notificationDiv.classes()).toContain('relative')
     })
   })
 
