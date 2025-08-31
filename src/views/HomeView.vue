@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="p-8 bg-gray-50 min-h-screen">
+    <section>
       <h1 class="text-3xl font-bold text-gray-900 mb-8">Dashboard Financeiro</h1>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -42,9 +42,9 @@
 
         <CardInfo title="Tempo Médio" value="2.4s" variant="primary" :show-currency="false" />
       </div>
-    </div>
+    </section>
 
-    <div class="max-w-2xl mx-auto p-6 bg-white">
+    <div class="max-w-2xl mx-auto mt-8 p-6 bg-white">
       <h1 class="text-2xl font-bold text-gray-900 mb-6">Lista de Transações</h1>
 
       <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -149,12 +149,21 @@
         />
       </div>
 
-      <div
-        v-if="showNotification"
-        class="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg"
+      <Transition
+        enter-active-class="transform transition duration-300 ease-out"
+        enter-from-class="translate-y-8 opacity-0 scale-95"
+        enter-to-class="translate-y-0 opacity-100 scale-100"
+        leave-active-class="transform transition duration-200 ease-in"
+        leave-from-class="translate-y-0 opacity-100 scale-100"
+        leave-to-class="translate-y-8 opacity-0 scale-95"
       >
-        {{ notificationMessage }}
-      </div>
+        <div
+          v-if="showNotification"
+          class="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg"
+        >
+          {{ notificationMessage }}
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
