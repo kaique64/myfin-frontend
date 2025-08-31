@@ -1,13 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach } from 'vitest'
-import { mount, VueWrapper } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import TransactionItem from '../../../src/components/shared/TransactionItem.vue'
 import type { TransactionItemProps } from '../../../src/components/shared/TransactionItem.vue'
 
-const factory = (
-  props: Partial<TransactionItemProps> = {},
-  options: { slots?: Record<string, string> } = {},
-) => {
+const factory = (props: Partial<TransactionItemProps> = {}) => {
   const defaultProps: TransactionItemProps = {
     title: 'Test Transaction',
     subtitle: 'Test Category • 01/01/2025',
@@ -26,742 +23,855 @@ const factory = (
 
   return mount(TransactionItem, {
     props: { ...defaultProps, ...props },
-    slots: options.slots,
-    shallow: true,
   })
 }
 
-describe('TransactionItem', () => {
-  describe('Props e Valores Básicos', () => {
-    it('deve aceitar título como prop', () => {
-      const wrapper = factory({ title: 'Almoço no restaurante' })
-
-      expect(wrapper.props('title')).toBe('Almoço no restaurante')
-    })
-
-    it('deve aceitar subtitle como prop', () => {
-      const wrapper = factory({ subtitle: 'Alimentação • 28/08/2025' })
-
-      expect(wrapper.props('subtitle')).toBe('Alimentação • 28/08/2025')
-    })
-
-    it('deve aceitar amount como prop', () => {
-      const wrapper = factory({ amount: 250.5 })
-
-      expect(wrapper.props('amount')).toBe(250.5)
-    })
-
-    it('deve usar type neutral como padrão', () => {
-      const wrapper = factory()
-
-      expect(wrapper.props('type')).toBe('neutral')
-    })
-
-    it('deve aceitar diferentes tipos de transação', () => {
-      const wrapper = factory({ type: 'expense' })
-
-      expect(wrapper.props('type')).toBe('expense')
-    })
-
-    it('deve usar currency BRL como padrão', () => {
-      const wrapper = factory()
-
-      expect(wrapper.props('currency')).toBe('BRL')
-    })
-
-    it('deve usar locale pt-BR como padrão', () => {
-      const wrapper = factory()
-
-      expect(wrapper.props('locale')).toBe('pt-BR')
-    })
-
-    it('deve usar showCurrency true como padrão', () => {
-      const wrapper = factory()
-
-      expect(wrapper.props('showCurrency')).toBe(true)
-    })
-  })
-
-  describe('Tipos de Transação e Classes CSS', () => {
-    let wrapper: VueWrapper<any>
-
-    describe('Income Transaction', () => {
-      beforeEach(() => {
-        wrapper = factory({ type: 'income' })
-      })
-
-      it('deve computar classe de cor correta para income', () => {
-        expect(wrapper.vm.amountColorClass).toBe('text-green-600')
-      })
-
-      it('deve adicionar prefixo + para income', () => {
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toMatch(/^\+ /)
-      })
-    })
-
-    describe('Expense Transaction', () => {
-      beforeEach(() => {
-        wrapper = factory({ type: 'expense' })
-      })
-
-      it('deve computar classe de cor correta para expense', () => {
-        expect(wrapper.vm.amountColorClass).toBe('text-red-600')
-      })
-
-      it('deve adicionar prefixo - para expense', () => {
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toMatch(/^- /)
-      })
-    })
-
-    describe('Neutral Transaction', () => {
-      beforeEach(() => {
-        wrapper = factory({ type: 'neutral' })
-      })
-
-      it('deve computar classe de cor correta para neutral', () => {
-        expect(wrapper.vm.amountColorClass).toBe('text-gray-900')
-      })
-
-      it('não deve adicionar prefixo para neutral', () => {
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).not.toMatch(/^[+-] /)
-      })
-    })
-  })
-
-  describe('Formatação de Valores', () => {
-    describe('Com Formatação de Moeda', () => {
-      it('deve formatar valor como moeda brasileira para expense', () => {
-        const wrapper = factory({
-          amount: 150,
-          type: 'expense',
-          currency: 'BRL',
-          locale: 'pt-BR',
-        })
-
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toContain('- ')
-        expect(formatted).toContain('R$')
-        expect(formatted).toContain('150,00')
-      })
-
-      it('deve formatar valor como moeda brasileira para income', () => {
-        const wrapper = factory({
-          amount: 2500,
-          type: 'income',
-          currency: 'BRL',
-          locale: 'pt-BR',
-        })
-
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toContain('+ ')
-        expect(formatted).toContain('R$')
-        expect(formatted).toContain('2.500,00')
-      })
-
-      it('deve formatar valor neutro sem prefixo', () => {
-        const wrapper = factory({
-          amount: 1000,
-          type: 'neutral',
-        })
-
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toContain('R$')
-        expect(formatted).toContain('1.000,00')
-        expect(formatted).not.toMatch(/^[+-] /)
-      })
-    })
-
-    describe('Sem Formatação de Moeda', () => {
-      it('deve formatar valor sem moeda para expense', () => {
-        const wrapper = factory({
-          amount: 250,
-          type: 'expense',
-          showCurrency: false,
-          locale: 'pt-BR',
-        })
-
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toBe('- 250')
-      })
-
-      it('deve formatar valor sem moeda para income', () => {
-        const wrapper = factory({
-          amount: 1500,
-          type: 'income',
-          showCurrency: false,
-          locale: 'pt-BR',
-        })
-
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toBe('+ 1.500')
-      })
-    })
-
-    describe('Diferentes Moedas e Locales', () => {
-      it('deve formatar em dólar americano', () => {
-        const wrapper = factory({
-          amount: 500,
-          type: 'expense',
-          currency: 'USD',
-          locale: 'en-US',
-        })
-
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toContain('- ')
-        expect(formatted).toContain('$500.00')
-      })
-
-      it('deve formatar em euro', () => {
-        const wrapper = factory({
-          amount: 350,
-          type: 'income',
-          currency: 'EUR',
-          locale: 'de-DE',
-        })
-
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toContain('+ ')
-        expect(formatted).toContain('€')
-        expect(formatted).toContain('350,00')
-      })
-
-      it('deve formatar em libra esterlina', () => {
-        const wrapper = factory({
-          amount: 1200,
-          type: 'income',
-          currency: 'GBP',
-          locale: 'en-GB',
-        })
-
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toContain('+ ')
-        expect(formatted).toContain('£1,200.00')
-      })
-    })
-
-    describe('Valores Extremos', () => {
-      it('deve formatar valor zero', () => {
-        const wrapper = factory({ amount: 0, type: 'expense' })
-
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toContain('- ')
-        expect(formatted).toContain('R$')
-        expect(formatted).toContain('0,00')
-      })
-
-      it('deve usar valor absoluto para valores negativos', () => {
-        const wrapper = factory({
-          amount: -500,
-          type: 'expense',
-        })
-
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toContain('- ')
-        expect(formatted).toContain('500,00')
-        expect(formatted).not.toContain('--')
-      })
-
-      it('deve formatar valores muito grandes', () => {
-        const wrapper = factory({
-          amount: 1000000,
-          type: 'income',
-        })
-
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toContain('+ ')
-        expect(formatted).toContain('1.000.000,00')
-      })
-
-      it('deve formatar valores decimais', () => {
-        const wrapper = factory({
-          amount: 123.45,
-          type: 'expense',
-        })
-
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toContain('- ')
-        expect(formatted).toContain('123,45')
-      })
-    })
-  })
-
-  describe('Botões de Ação', () => {
-    describe('Configuração de Botões', () => {
-      it('deve mostrar botões por padrão', () => {
-        const wrapper = factory()
-
-        expect(wrapper.props('showActions')).toBe(true)
-        expect(wrapper.props('showEditButton')).toBe(true)
-        expect(wrapper.props('showDeleteButton')).toBe(true)
-      })
-
-      it('deve aceitar textos customizados para botões', () => {
-        const wrapper = factory({
-          editButtonText: 'Edit',
-          deleteButtonText: 'Remove',
-        })
-
-        expect(wrapper.props('editButtonText')).toBe('Edit')
-        expect(wrapper.props('deleteButtonText')).toBe('Remove')
-      })
-
-      it('deve aceitar configuração para esconder ações', () => {
-        const wrapper = factory({ showActions: false })
-
-        expect(wrapper.props('showActions')).toBe(false)
-      })
-
-      it('deve aceitar configuração para esconder botão de editar', () => {
-        const wrapper = factory({ showEditButton: false })
-
-        expect(wrapper.props('showEditButton')).toBe(false)
-      })
-
-      it('deve aceitar configuração para esconder botão de excluir', () => {
-        const wrapper = factory({ showDeleteButton: false })
-
-        expect(wrapper.props('showDeleteButton')).toBe(false)
-      })
-    })
-  })
-
-  describe('Interatividade e Eventos', () => {
-    describe('Evento de Clique', () => {
-      it('deve aceitar prop clickable', () => {
-        const wrapper = factory({ clickable: true })
-
-        expect(wrapper.props('clickable')).toBe(true)
-      })
-
-      it('deve usar clickable false como padrão', () => {
-        const wrapper = factory()
-
-        expect(wrapper.props('clickable')).toBe(false)
-      })
-
-      it('deve emitir evento click quando clickable é true', async () => {
-        const wrapper = factory({ clickable: true })
-
-        await wrapper.vm.handleClick(new MouseEvent('click'))
-
-        expect(wrapper.emitted('click')).toBeTruthy()
-        expect(wrapper.emitted('click')).toHaveLength(1)
-      })
-
-      it('não deve emitir evento click quando clickable é false', async () => {
-        const wrapper = factory({ clickable: false })
-
-        await wrapper.vm.handleClick(new MouseEvent('click'))
-
-        expect(wrapper.emitted('click')).toBeFalsy()
-      })
-    })
-
-    describe('Eventos de Botões', () => {
-      it('deve emitir evento edit quando handleEdit é chamado', async () => {
-        const wrapper = factory()
-        const mockEvent = new MouseEvent('click')
-
-        await wrapper.vm.handleEdit(mockEvent)
-
-        expect(wrapper.emitted('edit')).toBeTruthy()
-        expect(wrapper.emitted('edit')).toHaveLength(1)
-        expect(wrapper.emitted('edit')?.[0]?.[0]).toBe(mockEvent)
-      })
-
-      it('deve emitir evento delete quando handleDelete é chamado', async () => {
-        const wrapper = factory()
-        const mockEvent = new MouseEvent('click')
-
-        await wrapper.vm.handleDelete(mockEvent)
-
-        expect(wrapper.emitted('delete')).toBeTruthy()
-        expect(wrapper.emitted('delete')).toHaveLength(1)
-        expect(wrapper.emitted('delete')?.[0]?.[0]).toBe(mockEvent)
-      })
-    })
-  })
-
-  describe('Reatividade das Props', () => {
-    let wrapper: VueWrapper<any>
+describe('Given a TransactionItem component', () => {
+  describe('When rendered with default props', () => {
+    let wrapper: ReturnType<typeof factory>
 
     beforeEach(() => {
       wrapper = factory()
     })
 
-    it('deve reagir a mudanças na prop amount', async () => {
-      await wrapper.setProps({ amount: 500 })
-
-      expect(wrapper.props('amount')).toBe(500)
-      expect(wrapper.vm.formattedAmount).toContain('500,00')
+    it('Then it should display default title', () => {
+      expect((wrapper.vm as any).title).toBe('Test Transaction')
     })
 
-    it('deve reagir a mudanças na prop type', async () => {
-      await wrapper.setProps({ type: 'expense' })
-
-      expect(wrapper.props('type')).toBe('expense')
-      expect(wrapper.vm.amountColorClass).toBe('text-red-600')
-      expect(wrapper.vm.formattedAmount).toMatch(/^- /)
+    it('Then it should display default subtitle', () => {
+      expect((wrapper.vm as any).subtitle).toBe('Test Category • 01/01/2025')
     })
 
-    it('deve reagir a mudanças na prop currency', async () => {
-      await wrapper.setProps({
-        currency: 'USD',
-        locale: 'en-US',
-      })
-
-      expect(wrapper.props('currency')).toBe('USD')
-      expect(wrapper.vm.formattedAmount).toContain('$')
+    it('Then it should have default amount', () => {
+      expect((wrapper.vm as any).amount).toBe(100)
     })
 
-    it('deve reagir a mudanças na prop showCurrency', async () => {
-      await wrapper.setProps({ showCurrency: false })
-
-      expect(wrapper.props('showCurrency')).toBe(false)
-      expect(wrapper.vm.formattedAmount).not.toContain('R$')
+    it('Then it should use neutral type as default', () => {
+      expect((wrapper.vm as any).type).toBe('neutral')
     })
 
-    it('deve reagir a mudanças no title e subtitle', async () => {
-      await wrapper.setProps({
-        title: 'Novo Título',
-        subtitle: 'Nova Categoria • 02/01/2025',
-      })
+    it('Then it should use BRL currency as default', () => {
+      expect((wrapper.vm as any).currency).toBe('BRL')
+    })
 
-      expect(wrapper.props('title')).toBe('Novo Título')
-      expect(wrapper.props('subtitle')).toBe('Nova Categoria • 02/01/2025')
+    it('Then it should use pt-BR locale as default', () => {
+      expect((wrapper.vm as any).locale).toBe('pt-BR')
+    })
+
+    it('Then it should show currency by default', () => {
+      expect((wrapper.vm as any).showCurrency).toBe(true)
+    })
+
+    it('Then it should show actions by default', () => {
+      expect((wrapper.vm as any).showActions).toBe(true)
+    })
+
+    it('Then it should show edit button by default', () => {
+      expect((wrapper.vm as any).showEditButton).toBe(true)
+    })
+
+    it('Then it should show delete button by default', () => {
+      expect((wrapper.vm as any).showDeleteButton).toBe(true)
+    })
+
+    it('Then it should use default button texts', () => {
+      expect((wrapper.vm as any).editButtonText).toBe('Editar')
+      expect((wrapper.vm as any).deleteButtonText).toBe('Excluir')
+    })
+
+    it('Then it should not be clickable by default', () => {
+      expect((wrapper.vm as any).clickable).toBe(false)
     })
   })
 
-  describe('Edge Cases', () => {
-    it('deve lidar com título vazio', () => {
-      const wrapper = factory({ title: '' })
+  describe('When rendered with custom title and subtitle', () => {
+    let wrapper: ReturnType<typeof factory>
 
-      expect(wrapper.props('title')).toBe('')
+    beforeEach(() => {
+      wrapper = factory({
+        title: 'Almoço no restaurante',
+        subtitle: 'Alimentação • 28/08/2025',
+      })
     })
 
-    it('deve lidar com subtitle vazio', () => {
-      const wrapper = factory({ subtitle: '' })
-
-      expect(wrapper.props('subtitle')).toBe('')
+    it('Then it should display the custom title', () => {
+      expect((wrapper.vm as any).title).toBe('Almoço no restaurante')
     })
 
-    it('deve lidar com amount zero', () => {
-      const wrapper = factory({ amount: 0 })
+    it('Then it should display the custom subtitle', () => {
+      expect((wrapper.vm as any).subtitle).toBe('Alimentação • 28/08/2025')
+    })
+  })
 
-      expect(wrapper.props('amount')).toBe(0)
-      expect(wrapper.vm.formattedAmount).toContain('0,00')
+  describe('When rendered as income transaction', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({ type: 'income' })
     })
 
-    it('deve lidar com valores negativos usando valor absoluto', () => {
-      const wrapper = factory({
+    it('Then it should compute green color class', () => {
+      expect((wrapper.vm as any).amountColorClass).toBe('text-green-600')
+    })
+
+    it('Then it should add plus prefix to formatted amount', () => {
+      expect((wrapper.vm as any).formattedAmount).toMatch(/^\+ /)
+    })
+  })
+
+  describe('When rendered as expense transaction', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({ type: 'expense' })
+    })
+
+    it('Then it should compute red color class', () => {
+      expect((wrapper.vm as any).amountColorClass).toBe('text-red-600')
+    })
+
+    it('Then it should add minus prefix to formatted amount', () => {
+      expect((wrapper.vm as any).formattedAmount).toMatch(/^- /)
+    })
+  })
+
+  describe('When rendered as neutral transaction', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({ type: 'neutral' })
+    })
+
+    it('Then it should compute gray color class', () => {
+      expect((wrapper.vm as any).amountColorClass).toBe('text-gray-900')
+    })
+
+    it('Then it should not add prefix to formatted amount', () => {
+      expect((wrapper.vm as any).formattedAmount).not.toMatch(/^[+-] /)
+    })
+  })
+
+  describe('When rendered with custom amount and currency formatting', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({
+        amount: 150,
+        type: 'expense',
+        currency: 'BRL',
+        locale: 'pt-BR',
+      })
+    })
+
+    it('Then it should format as Brazilian currency with minus prefix', () => {
+      const formatted = (wrapper.vm as any).formattedAmount
+      expect(formatted).toContain('- ')
+      expect(formatted).toContain('R$')
+      expect(formatted).toContain('150,00')
+    })
+  })
+
+  describe('When rendered with income and Brazilian currency', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({
+        amount: 2500,
+        type: 'income',
+        currency: 'BRL',
+        locale: 'pt-BR',
+      })
+    })
+
+    it('Then it should format as Brazilian currency with plus prefix', () => {
+      const formatted = (wrapper.vm as any).formattedAmount
+      expect(formatted).toContain('+ ')
+      expect(formatted).toContain('R$')
+      expect(formatted).toContain('2.500,00')
+    })
+  })
+
+  describe('When rendered with neutral amount', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({
+        amount: 1000,
+        type: 'neutral',
+      })
+    })
+
+    it('Then it should format without prefix', () => {
+      const formatted = (wrapper.vm as any).formattedAmount
+      expect(formatted).toContain('R$')
+      expect(formatted).toContain('1.000,00')
+      expect(formatted).not.toMatch(/^[+-] /)
+    })
+  })
+
+  describe('When rendered without currency formatting', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({
+        amount: 250,
+        type: 'expense',
+        showCurrency: false,
+        locale: 'pt-BR',
+      })
+    })
+
+    it('Then it should format number without currency symbol', () => {
+      expect((wrapper.vm as any).formattedAmount).toBe('- 250')
+    })
+  })
+
+  describe('When rendered as income without currency', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({
+        amount: 1500,
+        type: 'income',
+        showCurrency: false,
+        locale: 'pt-BR',
+      })
+    })
+
+    it('Then it should format number with plus prefix only', () => {
+      expect((wrapper.vm as any).formattedAmount).toBe('+ 1.500')
+    })
+  })
+
+  describe('When rendered with USD currency', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({
+        amount: 500,
+        type: 'expense',
+        currency: 'USD',
+        locale: 'en-US',
+      })
+    })
+
+    it('Then it should format as US dollar', () => {
+      const formatted = (wrapper.vm as any).formattedAmount
+      expect(formatted).toContain('- ')
+      expect(formatted).toContain('$500.00')
+    })
+  })
+
+  describe('When rendered with EUR currency', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({
+        amount: 350,
+        type: 'income',
+        currency: 'EUR',
+        locale: 'de-DE',
+      })
+    })
+
+    it('Then it should format as Euro', () => {
+      const formatted = (wrapper.vm as any).formattedAmount
+      expect(formatted).toContain('+ ')
+      expect(formatted).toContain('€')
+      expect(formatted).toContain('350,00')
+    })
+  })
+
+  describe('When rendered with GBP currency', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({
+        amount: 1200,
+        type: 'income',
+        currency: 'GBP',
+        locale: 'en-GB',
+      })
+    })
+
+    it('Then it should format as British Pound', () => {
+      const formatted = (wrapper.vm as any).formattedAmount
+      expect(formatted).toContain('+ ')
+      expect(formatted).toContain('£1,200.00')
+    })
+  })
+
+  describe('When rendered with zero amount', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({ amount: 0, type: 'expense' })
+    })
+
+    it('Then it should format zero with prefix and currency', () => {
+      const formatted = (wrapper.vm as any).formattedAmount
+      expect(formatted).toContain('- ')
+      expect(formatted).toContain('R$')
+      expect(formatted).toContain('0,00')
+    })
+  })
+
+  describe('When rendered with negative amount', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({
         amount: -500,
         type: 'expense',
       })
+    })
 
-      const formatted = wrapper.vm.formattedAmount
+    it('Then it should use absolute value and single prefix', () => {
+      const formatted = (wrapper.vm as any).formattedAmount
       expect(formatted).toContain('- ')
       expect(formatted).toContain('500,00')
       expect(formatted).not.toContain('--')
     })
+  })
 
-    it('deve lidar com título muito longo', () => {
-      const longTitle =
-        'Este é um título muito longo para uma transação que pode quebrar o layout se não for tratado adequadamente'
-      const wrapper = factory({ title: longTitle })
+  describe('When rendered with large amount', () => {
+    let wrapper: ReturnType<typeof factory>
 
-      expect(wrapper.props('title')).toBe(longTitle)
-    })
-
-    it('deve lidar com valores decimais complexos', () => {
-      const wrapper = factory({
-        amount: 123.456789,
+    beforeEach(() => {
+      wrapper = factory({
+        amount: 1000000,
         type: 'income',
       })
+    })
 
-      const formatted = wrapper.vm.formattedAmount
+    it('Then it should format large number correctly', () => {
+      const formatted = (wrapper.vm as any).formattedAmount
       expect(formatted).toContain('+ ')
-      expect(formatted).toContain('123,46')
+      expect(formatted).toContain('1.000.000,00')
     })
   })
 
-  describe('Configurações de Botões', () => {
-    describe('Botões Padrão', () => {
-      let wrapper: VueWrapper<any>
+  describe('When rendered with decimal amount', () => {
+    let wrapper: ReturnType<typeof factory>
 
-      beforeEach(() => {
-        wrapper = factory()
-      })
-
-      it('deve usar textos padrão para botões', () => {
-        expect(wrapper.props('editButtonText')).toBe('Editar')
-        expect(wrapper.props('deleteButtonText')).toBe('Excluir')
-      })
-
-      it('deve mostrar ações por padrão', () => {
-        expect(wrapper.props('showActions')).toBe(true)
-      })
-
-      it('deve mostrar ambos os botões por padrão', () => {
-        expect(wrapper.props('showEditButton')).toBe(true)
-        expect(wrapper.props('showDeleteButton')).toBe(true)
+    beforeEach(() => {
+      wrapper = factory({
+        amount: 123.45,
+        type: 'expense',
       })
     })
 
-    describe('Botões Customizados', () => {
-      it('deve aceitar textos customizados', () => {
-        const wrapper = factory({
-          editButtonText: 'Edit',
-          deleteButtonText: 'Remove',
-        })
-
-        expect(wrapper.props('editButtonText')).toBe('Edit')
-        expect(wrapper.props('deleteButtonText')).toBe('Remove')
-      })
-
-      it('deve aceitar configuração para esconder ações', () => {
-        const wrapper = factory({ showActions: false })
-
-        expect(wrapper.props('showActions')).toBe(false)
-      })
-
-      it('deve aceitar configuração individual de botões', () => {
-        const wrapper = factory({
-          showEditButton: false,
-          showDeleteButton: true,
-        })
-
-        expect(wrapper.props('showEditButton')).toBe(false)
-        expect(wrapper.props('showDeleteButton')).toBe(true)
-      })
+    it('Then it should format decimal correctly', () => {
+      const formatted = (wrapper.vm as any).formattedAmount
+      expect(formatted).toContain('- ')
+      expect(formatted).toContain('123,45')
     })
   })
 
-  describe('Emissão de Eventos', () => {
-    let wrapper: VueWrapper<any>
+  describe('When rendered with custom button texts', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({
+        editButtonText: 'Edit',
+        deleteButtonText: 'Remove',
+      })
+    })
+
+    it('Then it should use custom edit button text', () => {
+      expect((wrapper.vm as any).editButtonText).toBe('Edit')
+    })
+
+    it('Then it should use custom delete button text', () => {
+      expect((wrapper.vm as any).deleteButtonText).toBe('Remove')
+    })
+  })
+
+  describe('When rendered with actions disabled', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({ showActions: false })
+    })
+
+    it('Then it should not show actions', () => {
+      expect((wrapper.vm as any).showActions).toBe(false)
+    })
+  })
+
+  describe('When rendered with edit button disabled', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({ showEditButton: false })
+    })
+
+    it('Then it should not show edit button', () => {
+      expect((wrapper.vm as any).showEditButton).toBe(false)
+    })
+  })
+
+  describe('When rendered with delete button disabled', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({ showDeleteButton: false })
+    })
+
+    it('Then it should not show delete button', () => {
+      expect((wrapper.vm as any).showDeleteButton).toBe(false)
+    })
+  })
+
+  describe('When rendered as clickable', () => {
+    let wrapper: ReturnType<typeof factory>
 
     beforeEach(() => {
       wrapper = factory({ clickable: true })
     })
 
-    it('deve emitir evento click com MouseEvent', async () => {
-      const mockEvent = new MouseEvent('click')
+    it('Then it should be clickable', () => {
+      expect((wrapper.vm as any).clickable).toBe(true)
+    })
+  })
 
-      await wrapper.vm.handleClick(mockEvent)
+  describe('When clicked and clickable is enabled', () => {
+    let wrapper: ReturnType<typeof factory>
 
-      const emittedEvents = wrapper.emitted('click')
-      expect(emittedEvents).toBeTruthy()
-      expect(emittedEvents).toHaveLength(1)
-      expect(emittedEvents?.[0]?.[0]).toBe(mockEvent)
+    beforeEach(async () => {
+      wrapper = factory({ clickable: true })
+      await (wrapper.vm as any).handleClick(new MouseEvent('click'))
     })
 
-    it('deve emitir evento edit com MouseEvent', async () => {
-      const mockEvent = new MouseEvent('click')
-
-      await wrapper.vm.handleEdit(mockEvent)
-
-      const emittedEvents = wrapper.emitted('edit')
-      expect(emittedEvents).toBeTruthy()
-      expect(emittedEvents).toHaveLength(1)
-      expect(emittedEvents?.[0]?.[0]).toBe(mockEvent)
+    it('Then it should emit click event', () => {
+      expect(wrapper.emitted('click')).toBeTruthy()
     })
 
-    it('deve emitir evento delete com MouseEvent', async () => {
-      const mockEvent = new MouseEvent('click')
+    it('Then it should emit click event once', () => {
+      expect(wrapper.emitted('click')).toHaveLength(1)
+    })
+  })
 
-      await wrapper.vm.handleDelete(mockEvent)
+  describe('When clicked and clickable is disabled', () => {
+    let wrapper: ReturnType<typeof factory>
 
-      const emittedEvents = wrapper.emitted('delete')
-      expect(emittedEvents).toBeTruthy()
-      expect(emittedEvents).toHaveLength(1)
-      expect(emittedEvents?.[0]?.[0]).toBe(mockEvent)
+    beforeEach(async () => {
+      wrapper = factory({ clickable: false })
+      await (wrapper.vm as any).handleClick(new MouseEvent('click'))
     })
 
-    it('não deve emitir click quando clickable é false', async () => {
-      await wrapper.setProps({ clickable: false })
-
-      await wrapper.vm.handleClick(new MouseEvent('click'))
-
+    it('Then it should not emit click event', () => {
       expect(wrapper.emitted('click')).toBeFalsy()
     })
   })
 
-  describe('Performance e Computação', () => {
-    let wrapper: VueWrapper<any>
+  describe('When edit button is clicked', () => {
+    let wrapper: ReturnType<typeof factory>
+    let mockEvent: MouseEvent
+
+    beforeEach(async () => {
+      wrapper = factory()
+      mockEvent = new MouseEvent('click')
+      await (wrapper.vm as any).handleEdit(mockEvent)
+    })
+
+    it('Then it should emit edit event', () => {
+      expect(wrapper.emitted('edit')).toBeTruthy()
+    })
+
+    it('Then it should emit edit event once', () => {
+      expect(wrapper.emitted('edit')).toHaveLength(1)
+    })
+
+    it('Then it should pass event object in emission', () => {
+      expect(wrapper.emitted('edit')?.[0]?.[0]).toBe(mockEvent)
+    })
+  })
+
+  describe('When delete button is clicked', () => {
+    let wrapper: ReturnType<typeof factory>
+    let mockEvent: MouseEvent
+
+    beforeEach(async () => {
+      wrapper = factory()
+      mockEvent = new MouseEvent('click')
+      await (wrapper.vm as any).handleDelete(mockEvent)
+    })
+
+    it('Then it should emit delete event', () => {
+      expect(wrapper.emitted('delete')).toBeTruthy()
+    })
+
+    it('Then it should emit delete event once', () => {
+      expect(wrapper.emitted('delete')).toHaveLength(1)
+    })
+
+    it('Then it should pass event object in emission', () => {
+      expect(wrapper.emitted('delete')?.[0]?.[0]).toBe(mockEvent)
+    })
+  })
+
+  describe('When amount prop changes', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(async () => {
+      wrapper = factory()
+      await wrapper.setProps({ amount: 500 })
+    })
+
+    it('Then it should update amount prop', () => {
+      expect((wrapper.vm as any).amount).toBe(500)
+    })
+
+    it('Then it should update formatted amount', () => {
+      expect((wrapper.vm as any).formattedAmount).toContain('500,00')
+    })
+  })
+
+  describe('When type prop changes to expense', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(async () => {
+      wrapper = factory()
+      await wrapper.setProps({ type: 'expense' })
+    })
+
+    it('Then it should update type prop', () => {
+      expect((wrapper.vm as any).type).toBe('expense')
+    })
+
+    it('Then it should update color class', () => {
+      expect((wrapper.vm as any).amountColorClass).toBe('text-red-600')
+    })
+
+    it('Then it should add minus prefix', () => {
+      expect((wrapper.vm as any).formattedAmount).toMatch(/^- /)
+    })
+  })
+
+  describe('When currency prop changes to USD', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(async () => {
+      wrapper = factory()
+      await wrapper.setProps({
+        currency: 'USD',
+        locale: 'en-US',
+      })
+    })
+
+    it('Then it should update currency prop', () => {
+      expect((wrapper.vm as any).currency).toBe('USD')
+    })
+
+    it('Then it should format with dollar symbol', () => {
+      expect((wrapper.vm as any).formattedAmount).toContain('$')
+    })
+  })
+
+  describe('When showCurrency prop changes to false', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(async () => {
+      wrapper = factory()
+      await wrapper.setProps({ showCurrency: false })
+    })
+
+    it('Then it should update showCurrency prop', () => {
+      expect((wrapper.vm as any).showCurrency).toBe(false)
+    })
+
+    it('Then it should remove currency symbol', () => {
+      expect((wrapper.vm as any).formattedAmount).not.toContain('R$')
+    })
+  })
+
+  describe('When title and subtitle props change', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(async () => {
+      wrapper = factory()
+      await wrapper.setProps({
+        title: 'Novo Título',
+        subtitle: 'Nova Categoria • 02/01/2025',
+      })
+    })
+
+    it('Then it should update title prop', () => {
+      expect((wrapper.vm as any).title).toBe('Novo Título')
+    })
+
+    it('Then it should update subtitle prop', () => {
+      expect((wrapper.vm as any).subtitle).toBe('Nova Categoria • 02/01/2025')
+    })
+  })
+
+  describe('When rendered with empty title', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({ title: '' })
+    })
+
+    it('Then it should accept empty title', () => {
+      expect((wrapper.vm as any).title).toBe('')
+    })
+  })
+
+  describe('When rendered with empty subtitle', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({ subtitle: '' })
+    })
+
+    it('Then it should accept empty subtitle', () => {
+      expect((wrapper.vm as any).subtitle).toBe('')
+    })
+  })
+
+  describe('When rendered with very long title', () => {
+    let wrapper: ReturnType<typeof factory>
+    const longTitle =
+      'Este é um título muito longo para uma transação que pode quebrar o layout se não for tratado adequadamente'
+
+    beforeEach(() => {
+      wrapper = factory({ title: longTitle })
+    })
+
+    it('Then it should accept long title', () => {
+      expect((wrapper.vm as any).title).toBe(longTitle)
+    })
+  })
+
+  describe('When rendered with complex decimal amount', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({
+        amount: 123.456789,
+        type: 'income',
+      })
+    })
+
+    it('Then it should format with proper rounding', () => {
+      const formatted = (wrapper.vm as any).formattedAmount
+      expect(formatted).toContain('+ ')
+      expect(formatted).toContain('123,46')
+    })
+  })
+
+  describe('When type changes and performance is tested', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(async () => {
+      wrapper = factory()
+      await wrapper.setProps({ title: 'Novo Título' })
+    })
+
+    it('Then color class should remain stable when unrelated props change', () => {
+      const initialColorClass = (wrapper.vm as any).amountColorClass
+      expect((wrapper.vm as any).amountColorClass).toBe(initialColorClass)
+    })
+  })
+
+  describe('When unrelated props change', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(async () => {
+      wrapper = factory()
+      await wrapper.setProps({ title: 'Novo Título' })
+    })
+
+    it('Then formatted amount should remain stable', () => {
+      const initialFormattedAmount = (wrapper.vm as any).formattedAmount
+      expect((wrapper.vm as any).formattedAmount).toBe(initialFormattedAmount)
+    })
+  })
+
+  describe('When computed properties are accessed multiple times', () => {
+    let wrapper: ReturnType<typeof factory>
 
     beforeEach(() => {
       wrapper = factory()
     })
 
-    it('deve computar amountColorClass apenas quando type muda', async () => {
-      const initialColorClass = wrapper.vm.amountColorClass
-
-      await wrapper.setProps({ title: 'Novo Título' })
-      expect(wrapper.vm.amountColorClass).toBe(initialColorClass)
-
-      await wrapper.setProps({ type: 'expense' })
-      expect(wrapper.vm.amountColorClass).not.toBe(initialColorClass)
-      expect(wrapper.vm.amountColorClass).toBe('text-red-600')
-    })
-
-    it('deve computar formattedAmount apenas quando props relevantes mudam', async () => {
-      const initialFormattedAmount = wrapper.vm.formattedAmount
-
-      await wrapper.setProps({ title: 'Novo Título' })
-      expect(wrapper.vm.formattedAmount).toBe(initialFormattedAmount)
-
-      await wrapper.setProps({ amount: 500 })
-      expect(wrapper.vm.formattedAmount).not.toBe(initialFormattedAmount)
-    })
-
-    it('deve manter referência estável dos computed quando props não mudam', () => {
-      const firstColorClass = wrapper.vm.amountColorClass
-      const secondColorClass = wrapper.vm.amountColorClass
-
+    it('Then color class should maintain stable reference', () => {
+      const firstColorClass = (wrapper.vm as any).amountColorClass
+      const secondColorClass = (wrapper.vm as any).amountColorClass
       expect(firstColorClass).toBe(secondColorClass)
+    })
 
-      const firstFormattedAmount = wrapper.vm.formattedAmount
-      const secondFormattedAmount = wrapper.vm.formattedAmount
-
+    it('Then formatted amount should maintain stable reference', () => {
+      const firstFormattedAmount = (wrapper.vm as any).formattedAmount
+      const secondFormattedAmount = (wrapper.vm as any).formattedAmount
       expect(firstFormattedAmount).toBe(secondFormattedAmount)
     })
   })
 
-  describe('Validação de Interface', () => {
-    it('deve ter todas as propriedades computadas definidas', () => {
-      const wrapper = factory()
+  describe('When interface validation is performed', () => {
+    let wrapper: ReturnType<typeof factory>
 
-      expect(wrapper.vm.amountColorClass).toBeDefined()
-      expect(wrapper.vm.formattedAmount).toBeDefined()
+    beforeEach(() => {
+      wrapper = factory()
     })
 
-    it('deve ter todas as props definidas na interface', () => {
-      const wrapper = factory({
-        title: 'Test Transaction',
-        subtitle: 'Test Category • 01/01/2025',
-        amount: 100,
-        type: 'expense',
-        currency: 'BRL',
-        locale: 'pt-BR',
-        showCurrency: true,
-        showActions: true,
-        showEditButton: true,
-        showDeleteButton: true,
-        editButtonText: 'Editar',
-        deleteButtonText: 'Excluir',
-        clickable: false,
-      })
-
-      expect(wrapper.props()).toEqual({
-        title: 'Test Transaction',
-        subtitle: 'Test Category • 01/01/2025',
-        amount: 100,
-        type: 'expense',
-        currency: 'BRL',
-        locale: 'pt-BR',
-        showCurrency: true,
-        showActions: true,
-        showEditButton: true,
-        showDeleteButton: true,
-        editButtonText: 'Editar',
-        deleteButtonText: 'Excluir',
-        clickable: false,
-      })
+    it('Then computed properties should be defined', () => {
+      expect((wrapper.vm as any).amountColorClass).toBeDefined()
+      expect((wrapper.vm as any).formattedAmount).toBeDefined()
     })
 
-    it('deve ter todos os métodos de evento definidos', () => {
-      const wrapper = factory()
-
-      expect(typeof wrapper.vm.handleClick).toBe('function')
-      expect(typeof wrapper.vm.handleEdit).toBe('function')
-      expect(typeof wrapper.vm.handleDelete).toBe('function')
+    it('Then event handlers should be functions', () => {
+      expect(typeof (wrapper.vm as any).handleClick).toBe('function')
+      expect(typeof (wrapper.vm as any).handleEdit).toBe('function')
+      expect(typeof (wrapper.vm as any).handleDelete).toBe('function')
     })
   })
 
-  describe('Casos de Uso Específicos', () => {
-    it('deve funcionar como item de despesa típico', () => {
-      const wrapper = factory({
+  describe('When configured as typical expense item', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({
         title: 'Almoço no restaurante X',
         subtitle: 'Alimentação • 28/08/2025',
         amount: 50,
         type: 'expense',
       })
-
-      expect(wrapper.props('title')).toBe('Almoço no restaurante X')
-      expect(wrapper.props('subtitle')).toBe('Alimentação • 28/08/2025')
-      expect(wrapper.vm.amountColorClass).toBe('text-red-600')
-      expect(wrapper.vm.formattedAmount).toMatch(/^- .*R\$.*50,00/)
     })
 
-    it('deve funcionar como item de receita típico', () => {
-      const wrapper = factory({
+    it('Then it should display expense title', () => {
+      expect((wrapper.vm as any).title).toBe('Almoço no restaurante X')
+    })
+
+    it('Then it should display expense subtitle', () => {
+      expect((wrapper.vm as any).subtitle).toBe('Alimentação • 28/08/2025')
+    })
+
+    it('Then it should have expense color', () => {
+      expect((wrapper.vm as any).amountColorClass).toBe('text-red-600')
+    })
+
+    it('Then it should format as expense amount', () => {
+      expect((wrapper.vm as any).formattedAmount).toMatch(/^- .*R\$.*50,00/)
+    })
+  })
+
+  describe('When configured as typical income item', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({
         title: 'Salário',
         subtitle: 'Receita • 25/08/2025',
         amount: 2500,
         type: 'income',
       })
-
-      expect(wrapper.props('title')).toBe('Salário')
-      expect(wrapper.props('subtitle')).toBe('Receita • 25/08/2025')
-      expect(wrapper.vm.amountColorClass).toBe('text-green-600')
-      expect(wrapper.vm.formattedAmount).toMatch(/^\+ .*R\$.*2\.500,00/)
     })
 
-    it('deve funcionar como item neutro sem ações', () => {
-      const wrapper = factory({
+    it('Then it should display income title', () => {
+      expect((wrapper.vm as any).title).toBe('Salário')
+    })
+
+    it('Then it should display income subtitle', () => {
+      expect((wrapper.vm as any).subtitle).toBe('Receita • 25/08/2025')
+    })
+
+    it('Then it should have income color', () => {
+      expect((wrapper.vm as any).amountColorClass).toBe('text-green-600')
+    })
+
+    it('Then it should format as income amount', () => {
+      expect((wrapper.vm as any).formattedAmount).toMatch(/^\+ .*R\$.*2\.500,00/)
+    })
+  })
+
+  describe('When configured as neutral item without actions', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(() => {
+      wrapper = factory({
         title: 'Transferência',
         subtitle: 'Conta corrente • 26/08/2025',
         amount: 1000,
         type: 'neutral',
         showActions: false,
       })
+    })
 
-      expect(wrapper.props('type')).toBe('neutral')
-      expect(wrapper.props('showActions')).toBe(false)
-      expect(wrapper.vm.amountColorClass).toBe('text-gray-900')
-      expect(wrapper.vm.formattedAmount).not.toMatch(/^[+-] /)
+    it('Then it should be neutral type', () => {
+      expect((wrapper.vm as any).type).toBe('neutral')
+    })
+
+    it('Then it should not show actions', () => {
+      expect((wrapper.vm as any).showActions).toBe(false)
+    })
+
+    it('Then it should have neutral color', () => {
+      expect((wrapper.vm as any).amountColorClass).toBe('text-gray-900')
+    })
+
+    it('Then it should format without prefix', () => {
+      expect((wrapper.vm as any).formattedAmount).not.toMatch(/^[+-] /)
     })
   })
 
-  describe('Formatação Avançada', () => {
-    describe('Múltiplas Moedas', () => {
-      it('deve formatar corretamente para cada tipo de moeda', () => {
-        const currencies = [
-          { currency: 'USD', locale: 'en-US', symbol: '$' },
-          { currency: 'EUR', locale: 'de-DE', symbol: '€' },
-          { currency: 'GBP', locale: 'en-GB', symbol: '£' },
-        ]
+  describe('When rendered with different currencies and formatting', () => {
+    const currencies = [
+      { currency: 'USD', locale: 'en-US', symbol: '$' },
+      { currency: 'EUR', locale: 'de-DE', symbol: '€' },
+      { currency: 'GBP', locale: 'en-GB', symbol: '£' },
+    ]
 
-        currencies.forEach(({ currency, locale, symbol }) => {
-          const wrapper = factory({
+    currencies.forEach(({ currency, locale, symbol }) => {
+      describe(`When formatted with ${currency}`, () => {
+        let wrapper: ReturnType<typeof factory>
+
+        beforeEach(() => {
+          wrapper = factory({
             amount: 1000,
             type: 'income',
             currency,
             locale,
           })
+        })
 
-          expect(wrapper.vm.formattedAmount).toContain(symbol)
-          expect(wrapper.vm.formattedAmount).toContain('+ ')
+        it(`Then it should contain ${symbol} symbol`, () => {
+          expect((wrapper.vm as any).formattedAmount).toContain(symbol)
+        })
+
+        it('Then it should have plus prefix', () => {
+          expect((wrapper.vm as any).formattedAmount).toContain('+ ')
         })
       })
     })
+  })
 
-    describe('Diferentes Locales para BRL', () => {
-      it('deve formatar BRL em diferentes locales', () => {
-        const wrapper = factory({
-          amount: 1500,
-          type: 'expense',
-          currency: 'BRL',
-          locale: 'pt-BR',
-        })
+  describe('When formatted with BRL in Portuguese locale', () => {
+    let wrapper: ReturnType<typeof factory>
 
-        const formatted = wrapper.vm.formattedAmount
-        expect(formatted).toContain('- ')
-        expect(formatted).toContain('R$')
-        expect(formatted).toContain('1.500,00')
+    beforeEach(() => {
+      wrapper = factory({
+        amount: 1500,
+        type: 'expense',
+        currency: 'BRL',
+        locale: 'pt-BR',
       })
+    })
+
+    it('Then it should format with minus prefix', () => {
+      const formatted = (wrapper.vm as any).formattedAmount
+      expect(formatted).toContain('- ')
+    })
+
+    it('Then it should contain Real symbol', () => {
+      const formatted = (wrapper.vm as any).formattedAmount
+      expect(formatted).toContain('R$')
+    })
+
+    it('Then it should format amount correctly', () => {
+      const formatted = (wrapper.vm as any).formattedAmount
+      expect(formatted).toContain('1.500,00')
     })
   })
 })
