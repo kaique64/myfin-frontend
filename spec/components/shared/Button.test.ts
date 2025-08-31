@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { mount, VueWrapper } from '@vue/test-utils'
-import Button from '../../src/components/Button.vue'
+import Button from '../../../src/components/shared/Button.vue'
 
 describe('Given a Button component', () => {
   describe('When rendered with default props', () => {
