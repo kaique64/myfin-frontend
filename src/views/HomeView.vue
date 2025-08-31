@@ -1,7 +1,7 @@
 <template>
   <div>
     <section>
-      <h1 class="text-3xl font-bold text-gray-900 mb-8">Dashboard Financeiro</h1>
+      <Title size="3xl" margin="mb-8">Dashboard Financeiro</Title>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <CardInfo title="Saldo Atual" :value="1500" variant="primary" />
@@ -45,7 +45,8 @@
     </section>
 
     <div class="max-w-2xl mx-auto mt-8 p-6 bg-white">
-      <h1 class="text-2xl font-bold text-gray-900 mb-6">Lista de Transações</h1>
+      <Title size="2xl" tag="h1">Lista de Transações</Title>
+      <Divider size="xs" />
 
       <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <TransactionItem
@@ -76,7 +77,7 @@
         />
       </div>
 
-      <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Outras Variações</h2>
+      <Title size="xl" tag="h2" weight="semibold" margin="mt-8 mb-4">Outras Variações</Title>
 
       <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <TransactionItem
@@ -119,7 +120,7 @@
         />
       </div>
 
-      <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Moedas Internacionais</h2>
+      <Title size="xl" tag="h2" weight="semibold" margin="mt-8 mb-4">Moedas Internacionais</Title>
 
       <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <TransactionItem
@@ -149,21 +150,12 @@
         />
       </div>
 
-      <Transition
-        enter-active-class="transform transition duration-300 ease-out"
-        enter-from-class="translate-y-8 opacity-0 scale-95"
-        enter-to-class="translate-y-0 opacity-100 scale-100"
-        leave-active-class="transform transition duration-200 ease-in"
-        leave-from-class="translate-y-0 opacity-100 scale-100"
-        leave-to-class="translate-y-8 opacity-0 scale-95"
-      >
-        <div
-          v-if="showNotification"
-          class="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg"
-        >
-          {{ notificationMessage }}
-        </div>
-      </Transition>
+      <Notification
+        :visible="showNotification"
+        :message="notificationMessage"
+        variant="primary"
+        @close="showNotification = false"
+      />
     </div>
   </div>
 </template>
@@ -173,6 +165,9 @@ import { ref } from 'vue'
 
 import CardInfo from '../components/shared/CardInfo.vue'
 import TransactionItem from '../components/shared/TransactionItem.vue'
+import Title from '../components/shared/Title.vue'
+import Divider from '@/components/shared/Divider.vue'
+import Notification from '../components/shared/Notification.vue'
 
 const showNotification = ref(false)
 const notificationMessage = ref('')

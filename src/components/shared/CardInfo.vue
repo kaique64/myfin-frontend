@@ -7,9 +7,10 @@
   >
     <div class="flex items-start justify-between">
       <div class="flex-1">
-        <h3 :class="['text-sm font-medium mb-2', titleColorClass]">
+        <Title size="sm" weight="medium" margin="mb-2" :color="titleColorClass">
           {{ title }}
-        </h3>
+        </Title>
+
         <p :class="['text-2xl font-bold', valueColorClass]">
           {{ formattedValue }}
         </p>
@@ -24,6 +25,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import Title from './Title.vue'
 import type { Variant } from './types/variant'
 
 export interface CardInfoProps {
