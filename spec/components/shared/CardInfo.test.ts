@@ -455,11 +455,9 @@ describe('CardInfo', () => {
     it('deve computar variantClasses apenas quando variant muda', async () => {
       const initialClasses = wrapper.vm.variantClasses
 
-      // Mudança que não afeta variant
       await wrapper.setProps({ title: 'Novo Título' })
       expect(wrapper.vm.variantClasses).toBe(initialClasses)
 
-      // Mudança que afeta variant
       await wrapper.setProps({ variant: 'success' })
       expect(wrapper.vm.variantClasses).not.toBe(initialClasses)
     })
@@ -467,11 +465,9 @@ describe('CardInfo', () => {
     it('deve computar formattedValue apenas quando value, currency ou locale mudam', async () => {
       const initialValue = wrapper.vm.formattedValue
 
-      // Mudança que não afeta formatação
       await wrapper.setProps({ title: 'Novo Título' })
       expect(wrapper.vm.formattedValue).toBe(initialValue)
 
-      // Mudança que afeta formatação
       await wrapper.setProps({ value: 2000 })
       expect(wrapper.vm.formattedValue).not.toBe(initialValue)
     })
