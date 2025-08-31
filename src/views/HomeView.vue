@@ -149,19 +149,15 @@
           @delete="handleDelete"
         />
       </div>
-
-      <!-- Sistema de notificações global -->
-      <NotificationContainer />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import CardInfo from '../components/shared/CardInfo.vue'
-import TransactionItem from '../components/shared/TransactionItem.vue'
-import Title from '../components/shared/Title.vue'
 import Divider from '@/components/shared/Divider.vue'
-import NotificationContainer from '../components/shared/NotificationContainer.vue'
+import CardInfo from '../components/shared/CardInfo.vue'
+import Title from '../components/shared/Title.vue'
+import TransactionItem from '../components/shared/TransactionItem.vue'
 import { useNotifications } from '../composables/useNotifications'
 
 const { success, error, info } = useNotifications()
