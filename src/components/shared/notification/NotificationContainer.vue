@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import Notification from './Notification.vue'
-import { useNotifications } from '../../composables/useNotifications'
+import { useNotifications } from '../../../composables/useNotifications'
 
 type NotificationPosition =
   | 'top-left'

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import TransactionItem from '../../../src/components/shared/TransactionItem.vue'
-import type { TransactionItemProps } from '../../../src/components/shared/TransactionItem.vue'
+import TransactionItem from '../../../src/components/transaction/TransactionItem.vue'
+import type { TransactionItemProps } from '../../../src/components/transaction/TransactionItem.vue'
 
 const factory = (props: Partial<TransactionItemProps> = {}) => {
   const defaultProps: TransactionItemProps = {
