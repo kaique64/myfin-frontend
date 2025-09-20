@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Title from '../Title.vue'
-import type { Variant } from '../types/variant'
+import type { Variant } from '../../../shared/types/variant'
 
 export interface CardInfoProps {
   title: string

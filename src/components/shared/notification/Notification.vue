@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { computed, watch, onUnmounted } from 'vue'
-import type { Variant } from '../types/variant'
+import type { Variant } from '../../../shared/types/variant'
 
 type NotificationPosition =
   | 'top-left'

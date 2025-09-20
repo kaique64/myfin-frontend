@@ -1,7 +1,7 @@
 import { mount, VueWrapper } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ComponentPublicInstance } from 'vue'
-import CardContainer from '../../../src/components/shared/CardContainer.vue'
+import CardContainer from '../../../src/components/shared/card/CardContainer.vue'
 
 type CardContainerWrapper = VueWrapper<ComponentPublicInstance & InstanceType<typeof CardContainer>>
 

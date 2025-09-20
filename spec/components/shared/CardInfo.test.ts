@@ -1,8 +1,8 @@
 import { mount, VueWrapper } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ComponentPublicInstance } from 'vue'
-import type { CardInfoProps } from '../../../src/components/shared/CardInfo.vue'
-import CardInfo from '../../../src/components/shared/CardInfo.vue'
+import type { CardInfoProps } from '../../../src/components/shared/card/CardInfo.vue'
+import CardInfo from '../../../src/components/shared/card/CardInfo.vue'
 
 type CardInfoWrapper = VueWrapper<ComponentPublicInstance & InstanceType<typeof CardInfo>>
 

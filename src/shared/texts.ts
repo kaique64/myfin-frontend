@@ -12,6 +12,8 @@ export const texts = {
   transaction: {
     register: {
       title: 'Cadastrar Movimentação',
+      transactionTitle: 'Título',
+      transactionTitlePlaceholder: 'Digite um título para a transação...',
       value: 'Valor',
       valuePlaceholder: 'R$ 0,00',
       type: 'Tipo',

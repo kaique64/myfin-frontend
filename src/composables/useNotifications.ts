@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import type { Variant } from '../components/shared/types/variant'
+import type { Variant } from '../shared/types/variant'
 
 export interface NotificationItem {
   id: string

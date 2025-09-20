@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, VueWrapper } from '@vue/test-utils'
 import { ref, computed } from 'vue'
-import NotificationContainer from '../../../src/components/shared/NotificationContainer.vue'
+import NotificationContainer from '../../../src/components/shared/notification/NotificationContainer.vue'
 import { useNotifications } from '../../../src/composables/useNotifications'
 import type { NotificationItem } from '../../../src/composables/useNotifications'
 

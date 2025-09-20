@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { mount, VueWrapper } from '@vue/test-utils'
-import Notification from '../../../src/components/shared/Notification.vue'
+import Notification from '../../../src/components/shared/notification/Notification.vue'
 
 describe('Given a Notification component', () => {
   afterEach(() => {

@@ -49,8 +49,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-
-export type TransactionType = 'income' | 'expense' | 'neutral'
+import type { TransactionType } from '../../shared/types/transaction'
 
 export interface TransactionItemProps {
   title: string
@@ -87,7 +86,6 @@ const emit = defineEmits<{
   delete: [event: MouseEvent]
 }>()
 
-// Classe de cor baseada no tipo de transação
 const amountColorClass = computed(() => {
   const colors = {
     income: 'text-green-600',
