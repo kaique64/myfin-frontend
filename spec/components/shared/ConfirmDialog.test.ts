@@ -89,11 +89,10 @@ describe('Given a ConfirmDialog component', () => {
 
   describe('When open method is called', () => {
     let wrapper: ReturnType<typeof factory>
-    let openPromise: Promise<boolean>
 
     beforeEach(async () => {
       wrapper = factory()
-      openPromise = wrapper.vm.open()
+      wrapper.vm.open()
       await wrapper.vm.$nextTick()
     })
 
@@ -229,7 +228,7 @@ describe('Given a ConfirmDialog component', () => {
 
   describe('When multiple dialogs are opened and closed', () => {
     let wrapper: ReturnType<typeof factory>
-    let results: boolean[] = []
+    const results: boolean[] = []
 
     beforeEach(async () => {
       wrapper = factory()

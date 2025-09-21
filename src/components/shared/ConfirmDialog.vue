@@ -42,6 +42,7 @@ interface ConfirmDialogProps {
   variant?: 'primary' | 'danger'
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(defineProps<ConfirmDialogProps>(), {
   title: 'Confirm',
   message: 'Are you sure you want to proceed?',
