@@ -38,6 +38,15 @@ export const texts = {
       description: 'Descrição (Opcional)',
       descriptionPlaceholder: 'Digite uma descrição para a transação...',
       save: 'Salvar',
+      validation: {
+        titleRequired: 'O título é obrigatório',
+        amountRequired: 'O valor é obrigatório',
+        amountGreaterThanZero: 'O valor deve ser maior que zero',
+        typeRequired: 'O tipo é obrigatório',
+        categoryRequired: 'A categoria é obrigatória',
+        paymentMethodRequired: 'A forma de pagamento é obrigatória',
+        dateRequired: 'A data é obrigatória',
+      },
     },
   },
 }

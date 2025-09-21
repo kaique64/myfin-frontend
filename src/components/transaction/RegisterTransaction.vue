@@ -3,18 +3,26 @@
     <Title size="2xl" tag="h1">{{ texts.transaction.register.title }}</Title>
     <Divider size="xs" />
 
-    <form @submit.prevent="handleSubmit" class="space-y-6 mt-6">
+    <form @submit="onSubmit" class="space-y-6 mt-6">
       <div>
         <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
           {{ texts.transaction.register.transactionTitle }}
         </label>
         <input
           id="title"
-          v-model="form.title"
+          v-model="titleField"
+          v-bind="titleAttrs"
           type="text"
+          autocomplete="off"
           :placeholder="texts.transaction.register.transactionTitlePlaceholder"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          :class="[
+            'w-full px-4 py-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:border-transparent',
+            errors.title
+              ? 'border-red-300 focus:ring-red-500'
+              : 'border-gray-300 focus:ring-blue-500',
+          ]"
         />
+        <p v-if="errors.title" class="mt-1 text-sm text-red-600">{{ errors.title }}</p>
       </div>
 
       <div>
@@ -25,10 +33,18 @@
           id="value"
           v-model="formattedAmount"
           type="text"
+          autocomplete="off"
           :placeholder="texts.transaction.register.valuePlaceholder"
           @input="handleAmountInput"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          @blur="amountAttrs.onBlur"
+          :class="[
+            'w-full px-4 py-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:border-transparent',
+            errors.amount
+              ? 'border-red-300 focus:ring-red-500'
+              : 'border-gray-300 focus:ring-blue-500',
+          ]"
         />
+        <p v-if="errors.amount" class="mt-1 text-sm text-red-600">{{ errors.amount }}</p>
       </div>
 
       <div>
@@ -37,12 +53,19 @@
         </label>
         <select
           id="type"
-          v-model="form.type"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          v-model="typeField"
+          v-bind="typeAttrs"
+          :class="[
+            'w-full px-4 py-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:border-transparent',
+            errors.type
+              ? 'border-red-300 focus:ring-red-500'
+              : 'border-gray-300 focus:ring-blue-500',
+          ]"
         >
           <option value="income">{{ texts.transaction.register.income }}</option>
           <option value="expense">{{ texts.transaction.register.expense }}</option>
         </select>
+        <p v-if="errors.type" class="mt-1 text-sm text-red-600">{{ errors.type }}</p>
       </div>
 
       <div>
@@ -51,8 +74,14 @@
         </label>
         <select
           id="category"
-          v-model="form.category"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          v-model="categoryField"
+          v-bind="categoryAttrs"
+          :class="[
+            'w-full px-4 py-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:border-transparent',
+            errors.category
+              ? 'border-red-300 focus:ring-red-500'
+              : 'border-gray-300 focus:ring-blue-500',
+          ]"
         >
           <option value="food">{{ texts.transaction.register.categories.food }}</option>
           <option value="transport">{{ texts.transaction.register.categories.transport }}</option>
@@ -62,6 +91,7 @@
           <option value="health">{{ texts.transaction.register.categories.health }}</option>
           <option value="other">{{ texts.transaction.register.categories.other }}</option>
         </select>
+        <p v-if="errors.category" class="mt-1 text-sm text-red-600">{{ errors.category }}</p>
       </div>
 
       <div>
@@ -70,14 +100,23 @@
         </label>
         <select
           id="paymentMethod"
-          v-model="form.paymentMethod"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          v-model="paymentMethodField"
+          v-bind="paymentMethodAttrs"
+          :class="[
+            'w-full px-4 py-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:border-transparent',
+            errors.paymentMethod
+              ? 'border-red-300 focus:ring-red-500'
+              : 'border-gray-300 focus:ring-blue-500',
+          ]"
         >
           <option value="cash">{{ texts.transaction.register.paymentMethods.cash }}</option>
           <option value="credit">{{ texts.transaction.register.paymentMethods.credit }}</option>
           <option value="debit">{{ texts.transaction.register.paymentMethods.debit }}</option>
           <option value="pix">{{ texts.transaction.register.paymentMethods.pix }}</option>
         </select>
+        <p v-if="errors.paymentMethod" class="mt-1 text-sm text-red-600">
+          {{ errors.paymentMethod }}
+        </p>
       </div>
 
       <div>
@@ -86,10 +125,18 @@
         </label>
         <input
           id="date"
-          v-model="form.date"
+          v-model="dateField"
+          v-bind="dateAttrs"
           type="date"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          autocomplete="off"
+          :class="[
+            'w-full px-4 py-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:border-transparent',
+            errors.date
+              ? 'border-red-300 focus:ring-red-500'
+              : 'border-gray-300 focus:ring-blue-500',
+          ]"
         />
+        <p v-if="errors.date" class="mt-1 text-sm text-red-600">{{ errors.date }}</p>
       </div>
 
       <div>
@@ -98,11 +145,19 @@
         </label>
         <textarea
           id="description"
-          v-model="form.description"
+          v-model="descriptionField"
+          v-bind="descriptionAttrs"
           rows="4"
+          autocomplete="off"
           :placeholder="texts.transaction.register.descriptionPlaceholder"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          :class="[
+            'w-full px-4 py-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:border-transparent resize-none',
+            errors.description
+              ? 'border-red-300 focus:ring-red-500'
+              : 'border-gray-300 focus:ring-blue-500',
+          ]"
         ></textarea>
+        <p v-if="errors.description" class="mt-1 text-sm text-red-600">{{ errors.description }}</p>
       </div>
 
       <Button type="submit" variant="success" class="w-full cursor-pointer">
@@ -113,36 +168,61 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue'
+import { ref, computed } from 'vue'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 import { texts } from '@/shared/texts'
 import CardContainer from '../shared/card/CardContainer.vue'
 import Title from '../shared/Title.vue'
 import Divider from '../shared/Divider.vue'
 import Button from '../shared/Button.vue'
 import type { TransactionType } from '../../shared/types/transaction'
-
-export interface TransactionForm {
-  title: string
-  amount: number
-  type: TransactionType
-  category: string
-  paymentMethod: string
-  date: string
-  description: string
-}
+import {
+  registerTransactionSchema,
+  initialValues,
+  type TransactionForm,
+} from '@/schemas/transaction'
 
 const emit = defineEmits<{
   submit: [form: TransactionForm]
 }>()
 
-const form = reactive<TransactionForm>({
-  title: '',
-  amount: 0,
-  type: 'income',
-  category: 'food',
-  paymentMethod: 'cash',
-  date: '',
-  description: '',
+const validationSchema = toTypedSchema(registerTransactionSchema)
+
+const { handleSubmit, defineField, errors, setFieldValue } = useForm({
+  validationSchema,
+  validateOnMount: false,
+  initialValues,
+})
+
+const [titleField, titleAttrs] = defineField('title', {
+  validateOnModelUpdate: false,
+  validateOnBlur: true,
+})
+const [typeField, typeAttrs] = defineField('type', {
+  validateOnModelUpdate: false,
+  validateOnBlur: true,
+})
+const [categoryField, categoryAttrs] = defineField('category', {
+  validateOnModelUpdate: false,
+  validateOnBlur: true,
+})
+const [paymentMethodField, paymentMethodAttrs] = defineField('paymentMethod', {
+  validateOnModelUpdate: false,
+  validateOnBlur: true,
+})
+const [dateField, dateAttrs] = defineField('date', {
+  validateOnModelUpdate: false,
+  validateOnBlur: true,
+})
+const [descriptionField, descriptionAttrs] = defineField('description', {
+  validateOnModelUpdate: false,
+  validateOnBlur: true,
+})
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const [amountField, amountAttrs] = defineField('amount', {
+  validateOnModelUpdate: false,
+  validateOnBlur: true,
 })
 
 const rawAmount = ref('')
@@ -151,12 +231,10 @@ const formattedAmount = computed({
   get() {
     if (!rawAmount.value) return ''
 
-    // Remove todos os caracteres não numéricos para calcular o valor em centavos
     const numbers = rawAmount.value.replace(/\D/g, '')
 
     if (!numbers) return ''
 
-    // Converte para centavos (valor inteiro)
     const centavos = parseInt(numbers) || 0
     const value = centavos / 100
 
@@ -176,49 +254,56 @@ const handleAmountInput = (event: Event) => {
   const target = event.target as HTMLInputElement
   const value = target.value
 
-  // Remove caracteres não numéricos exceto vírgula e ponto
   const cleanValue = value.replace(/[^\d.,]/g, '')
 
-  // Limita o tamanho para evitar problemas de precisão (máximo 15 dígitos)
   const limitedValue = cleanValue.slice(0, 15)
 
   rawAmount.value = limitedValue
 
-  // Para form.amount, convertemos para centavos
   const numbersOnly = limitedValue.replace(/\D/g, '')
 
+  let amountInCentavos: number | undefined = undefined
+
   if (!numbersOnly) {
-    form.amount = 0
+    amountInCentavos = undefined
   } else {
-    // Se tem separador decimal (vírgula ou ponto)
     const hasDecimalSeparator = limitedValue.includes(',') || limitedValue.includes('.')
 
     if (hasDecimalSeparator) {
-      // Encontra a posição do último separador decimal
       const lastCommaIndex = limitedValue.lastIndexOf(',')
       const lastDotIndex = limitedValue.lastIndexOf('.')
       const lastSeparatorIndex = Math.max(lastCommaIndex, lastDotIndex)
 
-      // Separa a parte inteira da decimal
       const integerPart = limitedValue.substring(0, lastSeparatorIndex).replace(/\D/g, '')
       const decimalPart = limitedValue
         .substring(lastSeparatorIndex + 1)
         .replace(/\D/g, '')
-        .slice(0, 2) // máximo 2 casas decimais
+        .slice(0, 2)
 
-      // Converte para centavos
       const integer = parseInt(integerPart) || 0
       const decimal = parseInt(decimalPart.padEnd(2, '0'))
 
-      form.amount = integer * 100 + decimal
+      amountInCentavos = integer * 100 + decimal
     } else {
-      // Sem separador decimal, trata como centavos
-      form.amount = parseInt(numbersOnly) || 0
+      const parsedNumber = parseInt(numbersOnly)
+      amountInCentavos = parsedNumber > 0 ? parsedNumber : undefined
     }
   }
+
+  setFieldValue('amount', amountInCentavos)
 }
 
-const handleSubmit = () => {
-  emit('submit', { ...form })
-}
+const onSubmit = handleSubmit((values) => {
+  const formData: TransactionForm = {
+    title: values.title,
+    amount: values.amount || 0,
+    type: values.type as TransactionType,
+    category: values.category,
+    paymentMethod: values.paymentMethod,
+    date: values.date,
+    description: values.description || '',
+  }
+
+  emit('submit', formData)
+})
 </script>
