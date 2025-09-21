@@ -5,7 +5,6 @@ import NotificationContainer from '../../../src/components/shared/notification/N
 import { useNotifications } from '../../../src/composables/useNotifications'
 import type { NotificationItem } from '../../../src/composables/useNotifications'
 
-// Mock do composable useNotifications
 vi.mock('../../../src/composables/useNotifications', () => ({
   useNotifications: vi.fn(),
 }))
@@ -34,7 +33,6 @@ describe('Given a NotificationContainer component', () => {
 
   describe('When rendered with no notifications', () => {
     beforeEach(() => {
-      // Configurar wrapper com configuração específica para Teleport
       wrapper = mount(NotificationContainer, {
         global: {
           stubs: {
@@ -327,10 +325,8 @@ describe('Given a NotificationContainer component', () => {
     })
 
     it('Then it should reactively update when notifications are added', async () => {
-      // Inicialmente sem notificações
       expect(wrapper.findAllComponents({ name: 'Notification' })).toHaveLength(0)
 
-      // Adiciona notificação
       mockNotificationsRef.value = [
         {
           id: '1',
@@ -350,7 +346,6 @@ describe('Given a NotificationContainer component', () => {
     })
 
     it('Then it should reactively update when notifications are removed', async () => {
-      // Começa com notificação
       mockNotificationsRef.value = [
         {
           id: '1',
@@ -365,7 +360,6 @@ describe('Given a NotificationContainer component', () => {
       await wrapper.vm.$nextTick()
       expect(wrapper.findAllComponents({ name: 'Notification' })).toHaveLength(1)
 
-      // Remove notificação
       mockNotificationsRef.value = []
 
       await wrapper.vm.$nextTick()

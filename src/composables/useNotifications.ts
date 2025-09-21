@@ -50,7 +50,6 @@ export function useNotifications() {
     notifications.value = []
   }
 
-  // Convenience methods for different variants
   const success = (
     message: string,
     options?: Partial<Omit<NotificationItem, 'id' | 'message' | 'variant'>>,

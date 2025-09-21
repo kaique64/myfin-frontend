@@ -4,7 +4,6 @@ import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { TransactionRestClient } from '../../../../src/http/clients/transaction/TransactionRestClient'
 import type { RestCallParamsType } from '../../../../src/http/clients/types/RestCallParamsType'
 
-// Mock axios
 vi.mock('axios', () => ({
   default: {
     request: vi.fn(),
@@ -19,7 +18,7 @@ describe('Given TransactionRestClient', () => {
     transactionClient = new TransactionRestClient()
     mockAxiosRequest = vi.mocked(axios.request)
     vi.clearAllMocks()
-    // Mock console.log to prevent output during tests
+
     vi.spyOn(console, 'log').mockImplementation(() => {})
   })
 

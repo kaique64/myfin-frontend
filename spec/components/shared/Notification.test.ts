@@ -58,8 +58,7 @@ describe('Given a Notification component', () => {
 
     it('Then it should not apply position styles (managed by container)', () => {
       const element = wrapper.find('div').element as HTMLElement
-      // The notification component no longer manages positioning
-      // This is now handled by NotificationContainer
+
       expect(element.style.position).not.toBe('fixed')
     })
 
@@ -160,7 +159,7 @@ describe('Given a Notification component', () => {
 
         it(`Then positioning is managed by container, not component`, () => {
           const element = wrapper.find('div').element as HTMLElement
-          // Positioning is now handled by NotificationContainer
+
           expect(element.style.position).not.toBe('fixed')
         })
       })

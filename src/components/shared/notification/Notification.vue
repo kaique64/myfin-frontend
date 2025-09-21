@@ -101,7 +101,6 @@ const notificationClasses = computed(() => {
   return `${baseClasses} ${variantClasses[props.variant]} ${props.customClass}`.trim()
 })
 
-// Auto-close functionality
 watch(
   () => props.visible,
   (newVisible) => {

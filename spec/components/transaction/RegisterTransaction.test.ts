@@ -261,12 +261,10 @@ describe('Given a RegisterTransaction component', () => {
       const form = wrapper.find('form')
       await form.trigger('submit.prevent')
 
-      // Form submission should not emit when form is invalid (empty required fields)
       expect(wrapper.emitted('submit')).toBeFalsy()
     })
 
     it('Then it should have form validation enabled', async () => {
-      // Fill all required fields
       await wrapper.find('#title').setValue('Test Transaction')
       await wrapper.find('#value').setValue('100,50')
       await wrapper.find('#value').trigger('input')
@@ -275,11 +273,9 @@ describe('Given a RegisterTransaction component', () => {
       await wrapper.find('#paymentMethod').setValue('cash')
       await wrapper.find('#date').setValue('2025-01-01')
 
-      // Verify form structure exists
       const form = wrapper.find('form')
       expect(form.exists()).toBe(true)
 
-      // Verify all required fields are filled
       expect((wrapper.find('#title').element as HTMLInputElement).value).toBe('Test Transaction')
       expect((wrapper.find('#type').element as HTMLSelectElement).value).toBe('income')
       expect((wrapper.find('#category').element as HTMLSelectElement).value).toBe('food')
@@ -307,7 +303,6 @@ describe('Given a RegisterTransaction component', () => {
       await valueInput.setValue('100,00')
       await valueInput.trigger('input')
 
-      // Check that the input received the value and was processed
       expect(valueInput.exists()).toBe(true)
     })
 
@@ -401,7 +396,6 @@ describe('Given a RegisterTransaction component', () => {
       const form = wrapper.find('form')
       await form.trigger('submit.prevent')
 
-      // Form submission should not emit when form is invalid
       expect(wrapper.emitted('submit')).toBeFalsy()
     })
 
@@ -410,17 +404,14 @@ describe('Given a RegisterTransaction component', () => {
       await titleInput.setValue('')
       await titleInput.trigger('blur')
 
-      // Try to submit to trigger validation
       const form = wrapper.find('form')
       await form.trigger('submit.prevent')
       await wrapper.vm.$nextTick()
 
-      // Check if form prevents submission on invalid data
       expect(wrapper.emitted('submit')).toBeFalsy()
     })
 
     it('Then it should validate required fields before submission', async () => {
-      // Fill all required fields
       await wrapper.find('#title').setValue('Test Transaction')
       await wrapper.find('#value').setValue('100,50')
       await wrapper.find('#value').trigger('input')
@@ -429,7 +420,6 @@ describe('Given a RegisterTransaction component', () => {
       await wrapper.find('#paymentMethod').setValue('cash')
       await wrapper.find('#date').setValue('2025-01-01')
 
-      // Just verify fields are filled
       expect((wrapper.find('#title').element as HTMLInputElement).value).toBe('Test Transaction')
       expect((wrapper.find('#date').element as HTMLInputElement).value).toBe('2025-01-01')
     })
@@ -447,7 +437,6 @@ describe('Given a RegisterTransaction component', () => {
       await valueInput.setValue('123,45')
       await valueInput.trigger('input')
 
-      // Check that input exists and was processed
       expect(valueInput.exists()).toBe(true)
     })
 
@@ -464,7 +453,6 @@ describe('Given a RegisterTransaction component', () => {
       await valueInput.setValue('R$ 1.500,99')
       await valueInput.trigger('input')
 
-      // Input should be processed and formatted
       expect(valueInput.exists()).toBe(true)
     })
   })
@@ -510,7 +498,6 @@ describe('Given a RegisterTransaction component', () => {
     it('Then it should handle title input correctly', async () => {
       const titleInput = wrapper.find('#title')
 
-      // Fill the title field
       await titleInput.setValue('Teste de título')
 
       expect((titleInput.element as HTMLInputElement).value).toBe('Teste de título')
@@ -529,12 +516,10 @@ describe('Given a RegisterTransaction component', () => {
       await titleInput.setValue('')
       await titleInput.trigger('blur')
 
-      // Try to submit to trigger validation
       const form = wrapper.find('form')
       await form.trigger('submit.prevent')
       await wrapper.vm.$nextTick()
 
-      // Form should not emit on invalid data
       expect(wrapper.emitted('submit')).toBeFalsy()
     })
 
@@ -544,12 +529,10 @@ describe('Given a RegisterTransaction component', () => {
       await valueInput.trigger('input')
       await valueInput.trigger('blur')
 
-      // Try to submit to trigger validation
       const form = wrapper.find('form')
       await form.trigger('submit.prevent')
       await wrapper.vm.$nextTick()
 
-      // Form should not emit on invalid data
       expect(wrapper.emitted('submit')).toBeFalsy()
     })
 
@@ -558,21 +541,17 @@ describe('Given a RegisterTransaction component', () => {
       await dateInput.setValue('')
       await dateInput.trigger('blur')
 
-      // Try to submit to trigger validation
       const form = wrapper.find('form')
       await form.trigger('submit.prevent')
       await wrapper.vm.$nextTick()
 
-      // Form should not emit on invalid data
       expect(wrapper.emitted('submit')).toBeFalsy()
     })
 
     it('Then it should have error display elements in template', () => {
-      // Check that error display structure exists in template
       const form = wrapper.find('form')
       expect(form.exists()).toBe(true)
 
-      // Verify that inputs have the correct structure for validation
       expect(wrapper.find('#title').exists()).toBe(true)
       expect(wrapper.find('#value').exists()).toBe(true)
       expect(wrapper.find('#date').exists()).toBe(true)
@@ -589,84 +568,69 @@ describe('Given a RegisterTransaction component', () => {
     it('Then it should only validate on blur, not on input', async () => {
       const titleInput = wrapper.find('#title')
 
-      // Set empty value and trigger input (should not show error immediately)
       await titleInput.setValue('')
       await titleInput.trigger('input')
       await wrapper.vm.$nextTick()
 
-      // Error should not appear immediately after input
       const errorElements = wrapper.findAll('p.text-red-600')
       expect(errorElements.length).toBe(0)
 
-      // Now trigger blur (should show error)
       await titleInput.trigger('blur')
       await wrapper.vm.$nextTick()
 
-      // Now error should appear or validation should have been triggered
       expect(titleInput.exists()).toBe(true) // At least verify the input exists
     })
 
     it('Then it should validate date field on blur event', async () => {
       const dateInput = wrapper.find('#date')
 
-      // Clear the date field and trigger input
       await dateInput.setValue('')
       await dateInput.trigger('input')
       await wrapper.vm.$nextTick()
 
-      // Trigger blur to activate validation
       await dateInput.trigger('blur')
       await wrapper.vm.$nextTick()
 
-      // Verify the field exists and blur event was handled
       expect(dateInput.exists()).toBe(true)
     })
 
     it('Then it should validate type field on blur event', async () => {
       const typeSelect = wrapper.find('#type')
 
-      // Change value and trigger blur
       await typeSelect.setValue('expense')
       await typeSelect.trigger('blur')
       await wrapper.vm.$nextTick()
 
-      // Verify field exists and change was handled
       expect((typeSelect.element as HTMLSelectElement).value).toBe('expense')
     })
 
     it('Then it should validate category field on blur event', async () => {
       const categorySelect = wrapper.find('#category')
 
-      // Change value and trigger blur
       await categorySelect.setValue('transport')
       await categorySelect.trigger('blur')
       await wrapper.vm.$nextTick()
 
-      // Verify field exists and change was handled
       expect((categorySelect.element as HTMLSelectElement).value).toBe('transport')
     })
 
     it('Then it should validate payment method field on blur event', async () => {
       const paymentMethodSelect = wrapper.find('#paymentMethod')
 
-      // Change value and trigger blur
       await paymentMethodSelect.setValue('credit')
       await paymentMethodSelect.trigger('blur')
       await wrapper.vm.$nextTick()
 
-      // Verify field exists and change was handled
       expect((paymentMethodSelect.element as HTMLSelectElement).value).toBe('credit')
     })
 
     it('Then it should handle description field blur event', async () => {
       const descriptionTextarea = wrapper.find('#description')
 
-      // Set value and trigger blur
       await descriptionTextarea.setValue('Test description')
       await descriptionTextarea.trigger('blur')
       await wrapper.vm.$nextTick()
 
-      // Verify field exists and change was handled
       expect((descriptionTextarea.element as HTMLTextAreaElement).value).toBe('Test description')
     })
   })

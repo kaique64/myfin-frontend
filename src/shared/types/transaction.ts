@@ -1,5 +1,5 @@
 export interface TransactionDTO {
-  _id: string
+  id: string
   amount: number
   title: string
   currency: string
@@ -13,6 +13,9 @@ export interface TransactionDTO {
   updatedAt: string
 }
 
-export type CreateTransactionDTO = Omit<TransactionDTO, '_id' | 'createdAt' | 'updatedAt' | 'timestamp'>
+export type CreateTransactionDTO = Omit<
+  TransactionDTO,
+  'id' | 'createdAt' | 'updatedAt' | 'timestamp'
+>
 
 export type TransactionType = 'income' | 'expense' | 'neutral'

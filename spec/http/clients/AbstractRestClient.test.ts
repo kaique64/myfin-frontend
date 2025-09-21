@@ -358,7 +358,6 @@ describe('Given AbstractRestClient', () => {
       const params: RestCallParamsType<{ name: string }> = {
         url: 'users',
         payload: { name: 'Test User' },
-        // No contentType specified
       }
 
       await testClient.post(params)
@@ -537,25 +536,20 @@ describe('Given AbstractRestClient', () => {
 
       mockAxiosRequest.mockResolvedValue(mockResponse)
 
-      // Test GET
       await testClient.get({ url: 'test' })
       expect(mockAxiosRequest).toHaveBeenLastCalledWith(expect.objectContaining({ method: 'GET' }))
 
-      // Test POST
       await testClient.post({ url: 'test', payload: {} })
       expect(mockAxiosRequest).toHaveBeenLastCalledWith(expect.objectContaining({ method: 'POST' }))
 
-      // Test PUT
       await testClient.put({ url: 'test', payload: {} })
       expect(mockAxiosRequest).toHaveBeenLastCalledWith(expect.objectContaining({ method: 'PUT' }))
 
-      // Test PATCH
       await testClient.patch({ url: 'test', payload: {} })
       expect(mockAxiosRequest).toHaveBeenLastCalledWith(
         expect.objectContaining({ method: 'PATCH' }),
       )
 
-      // Test DELETE
       await testClient.delete({ url: 'test' })
       expect(mockAxiosRequest).toHaveBeenLastCalledWith(
         expect.objectContaining({ method: 'DELETE' }),

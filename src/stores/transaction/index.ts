@@ -1,9 +1,25 @@
 import { TransactionRestClient } from '@/http/clients/transaction/TransactionRestClient'
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import type { CreateTransactionDTO, TransactionDTO } from '../../shared/types/transaction'
+
+export interface TransactionsResponse {
+  data: TransactionDTO[]
+  filters: {
+    category: string
+    title: string
+  }
+  pagination: {
+    count: number
+    limit: number
+    skip: number
+  }
+}
 
 export const useTransactionStore = defineStore('transaction', () => {
   const transactionRestClient = new TransactionRestClient()
+  const transactions = ref<TransactionDTO[]>([])
+  const isLoading = ref(false)
 
   async function saveTransaction(
     transaction: CreateTransactionDTO,
@@ -14,11 +30,42 @@ export const useTransactionStore = defineStore('transaction', () => {
         payload: transaction,
       })
 
+      await getAllTransactions()
+
       return response?.data
     } catch (error) {
       throw error
     }
   }
 
-  return { saveTransaction }
+  async function getAllTransactions(): Promise<void> {
+    try {
+      isLoading.value = true
+      const response = await transactionRestClient.get<TransactionsResponse>({
+        url: '/transactions',
+      })
+
+      if (response?.data) {
+        transactions.value = response.data.data
+      }
+    } catch (error) {
+      throw error
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function deleteTransaction(id: string): Promise<void> {
+    try {
+      await transactionRestClient.delete({
+        url: `/transactions/${id}`,
+      })
+
+      await getAllTransactions()
+    } catch (error) {
+      throw error
+    }
+  }
+
+  return { saveTransaction, getAllTransactions, deleteTransaction, transactions, isLoading }
 })

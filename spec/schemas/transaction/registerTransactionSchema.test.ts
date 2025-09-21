@@ -640,7 +640,6 @@ describe('Given TransactionForm type', () => {
         description: 'Test description',
       }
 
-      // If this compiles without TypeScript errors, the type is correct
       expect(validTransaction.title).toBe('Test Transaction')
       expect(validTransaction.amount).toBe(100)
       expect(validTransaction.type).toBe('income')
@@ -665,7 +664,6 @@ describe('Given TransactionForm type', () => {
       expect(result.success).toBe(true)
 
       if (result.success) {
-        // The parsed data should be assignable to TransactionForm type
         const transaction: TransactionForm = result.data
         expect(transaction).toEqual(validData)
       }
