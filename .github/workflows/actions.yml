@@ -1,61 +1,48 @@
-name: Run Unit Tests
+name: CI Pipeline
 
 env:
   VITE_TRANSACTION_API_BASE_URL: http://localhost:8080
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
-  install-deps:
+  ci:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [22.19.0]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: '22.19.0'
-          cache: 'npm'
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-  build:
-    runs-on: ubuntu-latest
+      - name: Type check
+        run: npm run type-check
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.19.0'
-          cache: 'npm'
-
-      - name: Run build
+      - name: Build application
         run: npm run build
 
-  unit-tests:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.19.0'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run Unit tests and coverage
+      - name: Run unit tests
         run: npm run test:coverage
+
+      # - name: Upload coverage reports
+      #   uses: codecov/codecov-action@v3
+      #   if: success()
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     directory: ./coverage
+      #     fail_ci_if_error: false
