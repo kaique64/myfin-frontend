@@ -24,13 +24,12 @@
 import { onMounted, computed, ref } from 'vue'
 import Dashboard from '@/components/dashboard/Dashboard.vue'
 import type { CreateTransactionDTO, TransactionDTO } from '@/shared/types/transaction'
-import RegisterTransaction, {
-  type TransactionForm,
-} from '@/components/transaction/RegisterTransaction.vue'
+import RegisterTransaction from '@/components/transaction/RegisterTransaction.vue'
 import TransactionList from '@/components/transaction/TransactionList.vue'
 import ConfirmDialog from '@/components/shared/ConfirmDialog.vue'
 import { useTransactionStore } from '@/stores/transaction'
 import { useNotifications } from '@/composables/useNotifications'
+import type { TransactionForm } from '@/schemas/transaction'
 
 const transactionStore = useTransactionStore()
 const { addNotification } = useNotifications()

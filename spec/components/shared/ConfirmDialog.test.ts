@@ -211,7 +211,7 @@ describe('Given a ConfirmDialog component', () => {
 
       await wrapper.vm.$nextTick()
 
-      const backdrop = wrapper.find('.fixed.inset-0.bg-black')
+      const backdrop = wrapper.find('#backdrop')
       await backdrop.trigger('click')
 
       await flushPromises()
@@ -222,7 +222,7 @@ describe('Given a ConfirmDialog component', () => {
     })
 
     it('Then it should close the dialog', () => {
-      expect(wrapper.find('.fixed.inset-0').exists()).toBe(false)
+      expect(wrapper.find('#backdrop').exists()).toBe(false)
     })
   })
 

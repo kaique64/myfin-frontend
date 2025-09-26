@@ -1,6 +1,6 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center">
-    <div class="fixed inset-0 bg-black bg-opacity-50" @click="cancel"></div>
+    <div class="fixed inset-0 bg-gray-500/50" id="backdrop" @click="cancel"></div>
 
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 z-10">
       <div class="p-6">

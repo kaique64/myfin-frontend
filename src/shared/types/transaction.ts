@@ -6,7 +6,7 @@ export interface TransactionDTO {
   type: string
   category: string
   paymentMethod: string
-  description: string
+  description?: string
   date: string
   timestamp: number
   createdAt: string
