@@ -1,8 +1,11 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <CardContainer>
+  <DashboardSkeleton v-if="isLoading" />
+  <CardContainer v-else>
     <Title size="2xl" tag="h1">{{ texts.dashboard.title }}</Title>
+
     <Divider size="xs" />
+
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mt-6">
       <CardInfo
         :title="texts.dashboard.currentBalance"
@@ -39,6 +42,7 @@ import CardContainer from '../shared/card/CardContainer.vue'
 import CardInfo from '../shared/card/CardInfo.vue'
 import Divider from '../shared/Divider.vue'
 import Title from '../shared/Title.vue'
+import DashboardSkeleton from './DashboardSkeleton.vue'
 import { useTransactionStore } from '@/stores/transaction'
 import { computed, onMounted } from 'vue'
 import { useNotifications } from '@/composables/useNotifications'
@@ -46,12 +50,16 @@ import { useNotifications } from '@/composables/useNotifications'
 const transactionStore = useTransactionStore()
 const { addNotification } = useNotifications()
 
+const isLoading = computed(() => transactionStore.isLoading)
+
 const transactionDashboardData = computed(() => {
-  return transactionStore.transactionDashboard ?? {
-    incomeAmount: 0,
-    expenseAmount: 0,
-    totalAmount: 0,
-  }
+  return (
+    transactionStore.transactionDashboard ?? {
+      incomeAmount: 0,
+      expenseAmount: 0,
+      totalAmount: 0,
+    }
+  )
 })
 
 onMounted(async () => {
