@@ -3,7 +3,7 @@ export interface TransactionDTO {
   amount: number
   title: string
   currency: string
-  type: string
+  type: TransactionType
   category: string
   paymentMethod: string
   description?: string
