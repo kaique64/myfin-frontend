@@ -1,16 +1,52 @@
 import { mount, VueWrapper } from '@vue/test-utils'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ComponentPublicInstance } from 'vue'
+import { createPinia, setActivePinia } from 'pinia'
 import Dashboard from '../../../src/components/dashboard/Dashboard.vue'
 import { texts } from '../../../src/shared/texts'
 
 type DashboardWrapper = VueWrapper<ComponentPublicInstance & InstanceType<typeof Dashboard>>
 
-const factory = () => {
-  return mount(Dashboard) as DashboardWrapper
+const mockGetTransactionDashboard = vi.fn()
+const mockAddNotification = vi.fn()
+
+const mockTransactionStore = {
+  transactionDashboard: null as {
+    incomeAmount: number
+    expenseAmount: number
+    totalAmount: number
+  } | null,
+  getTransactionDashboard: mockGetTransactionDashboard,
+}
+
+vi.mock('../../../src/stores/transaction', () => ({
+  useTransactionStore: () => mockTransactionStore,
+}))
+
+vi.mock('../../../src/composables/useNotifications', () => ({
+  useNotifications: () => ({
+    addNotification: mockAddNotification,
+  }),
+}))
+
+const factory = (overrides = {}) => {
+  const pinia = createPinia()
+  setActivePinia(pinia)
+
+  return mount(Dashboard, {
+    global: {
+      plugins: [pinia],
+    },
+    ...overrides,
+  }) as DashboardWrapper
 }
 
 describe('Given a Dashboard component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockTransactionStore.transactionDashboard = null
+  })
+
   describe('When rendered with default state', () => {
     let wrapper: DashboardWrapper
 
@@ -62,9 +98,13 @@ describe('Given a Dashboard component', () => {
       const cardInfos = wrapper.findAllComponents({ name: 'CardInfo' })
       expect(cardInfos).toHaveLength(3)
     })
+
+    it('Then it should call getTransactionDashboard on mount', () => {
+      expect(mockGetTransactionDashboard).toHaveBeenCalledOnce()
+    })
   })
 
-  describe('When rendering CardInfo components', () => {
+  describe('When rendering CardInfo components with no dashboard data', () => {
     let wrapper: DashboardWrapper
 
     beforeEach(() => {
@@ -77,10 +117,10 @@ describe('Given a Dashboard component', () => {
       expect(currentBalanceCard.props('title')).toBe(texts.dashboard.currentBalance)
     })
 
-    it('Then it should render the current balance card with correct value', () => {
+    it('Then it should render the current balance card with default value', () => {
       const cardInfos = wrapper.findAllComponents({ name: 'CardInfo' })
       const currentBalanceCard = cardInfos[0]
-      expect(currentBalanceCard.props('value')).toBe(320)
+      expect(currentBalanceCard.props('value')).toBe(0)
     })
 
     it('Then it should render the current balance card with correct variant', () => {
@@ -95,10 +135,10 @@ describe('Given a Dashboard component', () => {
       expect(incomeCard.props('title')).toBe(texts.dashboard.income)
     })
 
-    it('Then it should render the income card with correct value', () => {
+    it('Then it should render the income card with default value', () => {
       const cardInfos = wrapper.findAllComponents({ name: 'CardInfo' })
       const incomeCard = cardInfos[1]
-      expect(incomeCard.props('value')).toBe(15000)
+      expect(incomeCard.props('value')).toBe(0)
     })
 
     it('Then it should render the income card with correct variant', () => {
@@ -113,10 +153,10 @@ describe('Given a Dashboard component', () => {
       expect(expensesCard.props('title')).toBe(texts.dashboard.expenses)
     })
 
-    it('Then it should render the expenses card with correct value', () => {
+    it('Then it should render the expenses card with default value', () => {
       const cardInfos = wrapper.findAllComponents({ name: 'CardInfo' })
       const expensesCard = cardInfos[2]
-      expect(expensesCard.props('value')).toBe(12)
+      expect(expensesCard.props('value')).toBe(0)
     })
 
     it('Then it should render the expenses card with correct variant', () => {
@@ -218,10 +258,10 @@ describe('Given a Dashboard component', () => {
 
   describe('When checking component structure', () => {
     let wrapper: DashboardWrapper
-    let cardContainer: VueWrapper<ComponentPublicInstance>;
-    let cardTitle: VueWrapper<ComponentPublicInstance>;
-    let cardDivider: VueWrapper<ComponentPublicInstance>;
-    let cardInfos: VueWrapper<ComponentPublicInstance>[];
+    let cardContainer: VueWrapper<ComponentPublicInstance>
+    let cardTitle: VueWrapper<ComponentPublicInstance>
+    let cardDivider: VueWrapper<ComponentPublicInstance>
+    let cardInfos: VueWrapper<ComponentPublicInstance>[]
 
     beforeEach(() => {
       wrapper = factory()
@@ -245,6 +285,84 @@ describe('Given a Dashboard component', () => {
 
     it('Then it should have all CardInfo components inside CardContainer', () => {
       expect(cardInfos).toHaveLength(3)
+    })
+  })
+
+  describe('When rendering with dashboard data', () => {
+    beforeEach(() => {
+      mockTransactionStore.transactionDashboard = {
+        incomeAmount: 5000,
+        expenseAmount: 1200,
+        totalAmount: 3800,
+      }
+    })
+
+    it('Then it should render the current balance card with correct value from store', async () => {
+      const wrapper = factory()
+      await wrapper.vm.$nextTick()
+
+      const cardInfos = wrapper.findAllComponents({ name: 'CardInfo' })
+      const currentBalanceCard = cardInfos[0]
+      expect(currentBalanceCard.props('value')).toBe(3800)
+    })
+
+    it('Then it should render the income card with correct value from store', async () => {
+      const wrapper = factory()
+      await wrapper.vm.$nextTick()
+
+      const cardInfos = wrapper.findAllComponents({ name: 'CardInfo' })
+      const incomeCard = cardInfos[1]
+      expect(incomeCard.props('value')).toBe(5000)
+    })
+
+    it('Then it should render the expenses card with correct value from store', async () => {
+      const wrapper = factory()
+      await wrapper.vm.$nextTick()
+
+      const cardInfos = wrapper.findAllComponents({ name: 'CardInfo' })
+      const expensesCard = cardInfos[2]
+      expect(expensesCard.props('value')).toBe(1200)
+    })
+  })
+
+  describe('When getTransactionDashboard succeeds', () => {
+    beforeEach(() => {
+      mockGetTransactionDashboard.mockResolvedValue(undefined)
+    })
+
+    it('Then it should not show error notification', async () => {
+      const wrapper = factory()
+      await wrapper.vm.$nextTick()
+
+      expect(mockAddNotification).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('When getTransactionDashboard fails', () => {
+    const mockError = new Error('API Error')
+
+    beforeEach(() => {
+      mockGetTransactionDashboard.mockRejectedValue(mockError)
+      vi.spyOn(console, 'error').mockImplementation(() => {})
+    })
+
+    it('Then it should show error notification', async () => {
+      factory()
+      // Wait for the async onMounted to complete
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
+      expect(mockAddNotification).toHaveBeenCalledWith({
+        message: 'Error fetching dashboard data',
+        variant: 'danger',
+      })
+    })
+
+    it('Then it should log error to console', async () => {
+      factory()
+      // Wait for the async onMounted to complete
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
+      expect(console.error).toHaveBeenCalledWith('Error fetching dashboard data:', mockError)
     })
   })
 })
