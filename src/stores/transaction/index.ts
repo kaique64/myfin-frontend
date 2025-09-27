@@ -16,9 +16,16 @@ export interface TransactionsResponse {
   }
 }
 
+export interface TransactionDashboardResponse {
+  incomeAmount: number
+  expenseAmount: number
+  totalAmount: number
+}
+
 export const useTransactionStore = defineStore('transaction', () => {
   const transactionRestClient = new TransactionRestClient()
   const transactions = ref<TransactionDTO[]>([])
+  const transactionDashboard = ref<TransactionDashboardResponse | null>(null)
   const isLoading = ref(false)
 
   async function saveTransaction(
@@ -67,5 +74,31 @@ export const useTransactionStore = defineStore('transaction', () => {
     }
   }
 
-  return { saveTransaction, getAllTransactions, deleteTransaction, transactions, isLoading }
+  async function getTransactionDashboard(): Promise<void> {
+    try {
+      isLoading.value = true
+
+      const response = await transactionRestClient.get<TransactionDashboardResponse>({
+        url: '/transactions/dashboard',
+      })
+
+      if (response?.data) {
+        transactionDashboard.value = response.data
+      }
+    } catch (error) {
+      throw error
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  return {
+    saveTransaction,
+    getAllTransactions,
+    getTransactionDashboard,
+    deleteTransaction,
+    transactions,
+    transactionDashboard,
+    isLoading,
+  }
 })

@@ -37,6 +37,10 @@ describe('Given useTransactionStore', () => {
     it('Then it should have isLoading set to false', () => {
       expect(store.isLoading).toBe(false)
     })
+
+    it('Then it should have transactionDashboard set to null', () => {
+      expect(store.transactionDashboard).toBeNull()
+    })
   })
 
   describe('When calling getAllTransactions', () => {
@@ -217,6 +221,68 @@ describe('Given useTransactionStore', () => {
       mockDelete.mockRejectedValueOnce(error)
 
       await expect(store.deleteTransaction('1')).rejects.toThrow()
+    })
+  })
+
+  describe('When calling getTransactionDashboard', () => {
+    it('Then it should fetch dashboard data and update the store', async () => {
+      const mockDashboardData = {
+        incomeAmount: 5000,
+        expenseAmount: 1500,
+        totalAmount: 3500,
+      }
+
+      const mockResponse = {
+        data: mockDashboardData,
+      }
+
+      mockGet.mockResolvedValueOnce(mockResponse)
+
+      await store.getTransactionDashboard()
+
+      expect(mockGet).toHaveBeenCalledWith({
+        url: '/transactions/dashboard',
+      })
+
+      expect(store.transactionDashboard).toEqual(mockDashboardData)
+      expect(store.isLoading).toBe(false)
+    })
+
+    it('Then it should handle API errors gracefully', async () => {
+      const error = new Error('API Error')
+      mockGet.mockRejectedValueOnce(error)
+
+      await expect(store.getTransactionDashboard()).rejects.toThrow()
+
+      expect(store.isLoading).toBe(false)
+      expect(store.transactionDashboard).toBeNull()
+    })
+
+    it('Then it should set isLoading while fetching', async () => {
+      mockGet.mockImplementationOnce(() => {
+        expect(store.isLoading).toBe(true)
+        return Promise.resolve({ data: { incomeAmount: 0, expenseAmount: 0, totalAmount: 0 } })
+      })
+
+      await store.getTransactionDashboard()
+      expect(store.isLoading).toBe(false)
+    })
+
+    it('Then it should handle empty response data', async () => {
+      const mockResponse = {
+        data: null,
+      }
+
+      mockGet.mockResolvedValueOnce(mockResponse)
+
+      await store.getTransactionDashboard()
+
+      expect(mockGet).toHaveBeenCalledWith({
+        url: '/transactions/dashboard',
+      })
+
+      expect(store.transactionDashboard).toBeNull()
+      expect(store.isLoading).toBe(false)
     })
   })
 })
