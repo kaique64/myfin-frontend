@@ -296,7 +296,7 @@ const handleAmountInput = (event: Event) => {
 const onSubmit = handleSubmit((values) => {
   const formData: TransactionForm = {
     title: values.title,
-    amount: values.amount || 0,
+    amount: (values.amount / 100) || 0,
     type: values.type as TransactionType,
     category: values.category,
     paymentMethod: values.paymentMethod,
