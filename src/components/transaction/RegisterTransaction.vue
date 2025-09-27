@@ -253,50 +253,21 @@ const formattedAmount = computed({
 const handleAmountInput = (event: Event) => {
   const target = event.target as HTMLInputElement
   const value = target.value
+  const num = Number(String(value).replace(/\D/g, '')) / 100
+  const amount = `R$ ${num.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`
 
-  const cleanValue = value.replace(/[^\d.,]/g, '')
+  rawAmount.value = amount
 
-  const limitedValue = cleanValue.slice(0, 15)
-
-  rawAmount.value = limitedValue
-
-  const numbersOnly = limitedValue.replace(/\D/g, '')
-
-  let amountInCentavos: number | undefined = undefined
-
-  if (!numbersOnly) {
-    amountInCentavos = undefined
-  } else {
-    const hasDecimalSeparator = limitedValue.includes(',') || limitedValue.includes('.')
-
-    if (hasDecimalSeparator) {
-      const lastCommaIndex = limitedValue.lastIndexOf(',')
-      const lastDotIndex = limitedValue.lastIndexOf('.')
-      const lastSeparatorIndex = Math.max(lastCommaIndex, lastDotIndex)
-
-      const integerPart = limitedValue.substring(0, lastSeparatorIndex).replace(/\D/g, '')
-      const decimalPart = limitedValue
-        .substring(lastSeparatorIndex + 1)
-        .replace(/\D/g, '')
-        .slice(0, 2)
-
-      const integer = parseInt(integerPart) || 0
-      const decimal = parseInt(decimalPart.padEnd(2, '0'))
-
-      amountInCentavos = integer * 100 + decimal
-    } else {
-      const parsedNumber = parseInt(numbersOnly)
-      amountInCentavos = parsedNumber > 0 ? parsedNumber : undefined
-    }
-  }
-
-  setFieldValue('amount', amountInCentavos)
+  setFieldValue('amount', num)
 }
 
 const onSubmit = handleSubmit((values) => {
   const formData: TransactionForm = {
     title: values.title,
-    amount: (values.amount / 100) || 0,
+    amount: values.amount || 0,
     type: values.type as TransactionType,
     category: values.category,
     paymentMethod: values.paymentMethod,
