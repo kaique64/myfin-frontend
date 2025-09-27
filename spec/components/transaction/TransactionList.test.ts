@@ -73,8 +73,8 @@ describe('Given a TransactionList component', () => {
       wrapper = factory({ isLoading: true })
     })
 
-    it('Then it should display loading message', () => {
-      expect(wrapper.text()).toContain('Loading transactions...')
+    it('Then it should display transaction list skeleton', () => {
+      expect(wrapper.find('#transaction-list-skeleton')).toBeDefined()
     })
 
     it('Then it should not display empty state message', () => {
@@ -183,8 +183,8 @@ describe('Given a TransactionList component', () => {
       await wrapper.setProps({ isLoading: true })
     })
 
-    it('Then it should show loading state', () => {
-      expect(wrapper.text()).toContain('Loading transactions...')
+    it('Then it should show transaction list skeleton', () => {
+      expect(wrapper.find('#transaction-list-skeleton')).toBeDefined()
     })
 
     it('Then it should not render transaction items', () => {

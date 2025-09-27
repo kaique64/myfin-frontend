@@ -1,5 +1,5 @@
 <template>
-  <CardContainer>
+  <CardContainer id="transaction-list-skeleton">
     <TitleSkeleton />
 
     <div v-for="n in 5" :key="n" class="px-0 py-6">
