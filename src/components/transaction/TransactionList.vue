@@ -18,7 +18,7 @@
         :key="transaction.id"
         :title="transaction.title"
         :subtitle="`${transaction.category} • ${transaction.date}`"
-        :amount="formatAmountFromCentavos(transaction.amount)"
+        :amount="transaction.amount"
         :type="transaction.type as TransactionType"
         :currency="transaction.currency"
         @edit="$emit('edit', transaction)"
@@ -41,8 +41,4 @@ defineEmits<{
   edit: [transaction: TransactionDTO]
   delete: [transaction: TransactionDTO]
 }>()
-
-function formatAmountFromCentavos(amount: number) {
-  return amount / 100
-}
 </script>

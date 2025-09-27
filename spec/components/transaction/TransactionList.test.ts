@@ -130,20 +130,6 @@ describe('Given a TransactionList component', () => {
     })
   })
 
-  describe('When formatAmountFromCentavos is called', () => {
-    let wrapper: ReturnType<typeof factory>
-
-    beforeEach(() => {
-      wrapper = factory()
-    })
-
-    it('Then it should convert centavos to real currency value', () => {
-      expect((wrapper.vm as any).formatAmountFromCentavos(10000)).toBe(100)
-      expect((wrapper.vm as any).formatAmountFromCentavos(15050)).toBe(150.5)
-      expect((wrapper.vm as any).formatAmountFromCentavos(0)).toBe(0)
-    })
-  })
-
   describe('When transaction item emits edit event', () => {
     let wrapper: ReturnType<typeof factory>
 
@@ -236,8 +222,8 @@ describe('Given a TransactionList component', () => {
 
     it('Then it should pass formatted amount to TransactionItem', () => {
       const items = wrapper.findAllComponents(TransactionItem)
-      expect(items[0].props('amount')).toBe(mockTransactions[0].amount / 100)
-      expect(items[1].props('amount')).toBe(mockTransactions[1].amount / 100)
+      expect(items[0].props('amount')).toBe(mockTransactions[0].amount)
+      expect(items[1].props('amount')).toBe(mockTransactions[1].amount)
     })
 
     it('Then it should pass correct type to TransactionItem', () => {
@@ -307,31 +293,6 @@ describe('Given a TransactionList component', () => {
       const items = wrapper.findAllComponents(TransactionItem)
       expect(items[0].props('currency')).toBe('BRL')
       expect(items[1].props('currency')).toBe('USD')
-    })
-  })
-
-  describe('When rendered with transactions with different amounts', () => {
-    const transactions = [
-      {
-        ...mockTransactions[0],
-        amount: 10000, // 100.00
-      },
-      {
-        ...mockTransactions[1],
-        amount: 15050, // 150.50
-      },
-    ]
-
-    let wrapper: ReturnType<typeof factory>
-
-    beforeEach(() => {
-      wrapper = factory({ transactions })
-    })
-
-    it('Then it should format each amount correctly', () => {
-      const items = wrapper.findAllComponents(TransactionItem)
-      expect(items[0].props('amount')).toBe(100)
-      expect(items[1].props('amount')).toBe(150.5)
     })
   })
 })
