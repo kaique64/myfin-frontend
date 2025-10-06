@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 
 interface ConfirmDialogProps {
   title?: string
@@ -54,6 +54,12 @@ const props = withDefaults(defineProps<ConfirmDialogProps>(), {
 const isOpen = ref(false)
 let resolvePromise: (value: boolean) => void
 
+function handleKeyDown(event: KeyboardEvent) {
+  if (event.key === 'Escape' && isOpen.value) {
+    cancel()
+  }
+}
+
 function open(): Promise<boolean> {
   isOpen.value = true
   return new Promise<boolean>((resolve) => {
@@ -70,6 +76,18 @@ function cancel() {
   isOpen.value = false
   resolvePromise(false)
 }
+
+watch(isOpen, (newValue) => {
+  if (newValue) {
+    document.addEventListener('keydown', handleKeyDown)
+  } else {
+    document.removeEventListener('keydown', handleKeyDown)
+  }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeyDown)
+})
 
 defineExpose({
   open,

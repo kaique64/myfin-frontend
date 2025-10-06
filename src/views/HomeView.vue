@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-12">
-    <Dashboard />
-    <RegisterTransaction @submit="handleRegisterTransaction" />
+    <Dashboard @addTransaction="openRegisterTransactionModal" />
+
     <TransactionList
       :transactions="transactions"
       :isLoading="isLoading"
@@ -17,6 +17,8 @@
       cancel-text="Cancel"
       variant="danger"
     />
+
+    <RegisterTransactionModal ref="registerTransactionModal" @submit="handleRegisterTransaction" />
   </div>
 </template>
 
@@ -24,9 +26,9 @@
 import { onMounted, computed, ref } from 'vue'
 import Dashboard from '@/components/dashboard/Dashboard.vue'
 import type { CreateTransactionDTO, TransactionDTO } from '@/shared/types/transaction'
-import RegisterTransaction from '@/components/transaction/RegisterTransaction.vue'
 import TransactionList from '@/components/transaction/TransactionList.vue'
 import ConfirmDialog from '@/components/shared/ConfirmDialog.vue'
+import RegisterTransactionModal from '@/components/transaction/RegisterTransactionModal.vue'
 import { useTransactionStore } from '@/stores/transaction'
 import { useNotifications } from '@/composables/useNotifications'
 import type { TransactionForm } from '@/schemas/transaction'
@@ -35,6 +37,7 @@ const transactionStore = useTransactionStore()
 const { addNotification } = useNotifications()
 const isDeletingTransaction = ref(false)
 const confirmDialog = ref<InstanceType<typeof ConfirmDialog> | null>(null)
+const registerTransactionModal = ref<InstanceType<typeof RegisterTransactionModal> | null>(null)
 
 const transactions = computed(() => transactionStore.transactions)
 const isLoading = computed(() => transactionStore.isLoading)
@@ -56,6 +59,10 @@ function formatDate(date: string) {
   return `${day}/${month}/${year}`
 }
 
+function openRegisterTransactionModal() {
+  registerTransactionModal.value?.open()
+}
+
 async function handleRegisterTransaction(form: TransactionForm) {
   try {
     const transaction: CreateTransactionDTO = {
@@ -74,6 +81,8 @@ async function handleRegisterTransaction(form: TransactionForm) {
       message: 'Transaction saved successfully',
       variant: 'success',
     })
+    await transactionStore.getAllTransactions()
+    await transactionStore.getTransactionDashboard()
   } catch (error) {
     console.log('error:', error)
     addNotification({
@@ -100,6 +109,8 @@ async function handleDeleteTransaction(transaction: TransactionDTO) {
       message: 'Transaction deleted successfully',
       variant: 'success',
     })
+    await transactionStore.getAllTransactions()
+    await transactionStore.getTransactionDashboard()
   } catch (error) {
     console.log('error:', error)
     addNotification({

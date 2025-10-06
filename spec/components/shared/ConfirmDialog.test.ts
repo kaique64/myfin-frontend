@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import ConfirmDialog from '../../../src/components/shared/ConfirmDialog.vue'
 
@@ -226,6 +226,76 @@ describe('Given a ConfirmDialog component', () => {
     })
   })
 
+  describe('When Escape key is pressed while dialog is open', () => {
+    let wrapper: ReturnType<typeof factory>
+    let openPromise: Promise<boolean>
+    let result: boolean | undefined
+
+    beforeEach(async () => {
+      wrapper = factory()
+      openPromise = wrapper.vm.open()
+
+      openPromise.then((value) => {
+        result = value
+      })
+
+      await wrapper.vm.$nextTick()
+
+      const event = new KeyboardEvent('keydown', { key: 'Escape' })
+      document.dispatchEvent(event)
+
+      await flushPromises()
+    })
+
+    it('Then it should resolve the promise with false', () => {
+      expect(result).toBe(false)
+    })
+
+    it('Then it should close the dialog', () => {
+      expect(wrapper.find('.fixed.inset-0').exists()).toBe(false)
+    })
+  })
+
+  describe('When a non-Escape key is pressed while dialog is open', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(async () => {
+      wrapper = factory()
+      wrapper.vm.open()
+      await wrapper.vm.$nextTick()
+
+      const event = new KeyboardEvent('keydown', { key: 'Enter' })
+      document.dispatchEvent(event)
+
+      await flushPromises()
+    })
+
+    it('Then it should keep the dialog open', () => {
+      expect(wrapper.find('.fixed.inset-0').exists()).toBe(true)
+    })
+  })
+
+  describe('When dialog is closed and Escape key is pressed', () => {
+    let wrapper: ReturnType<typeof factory>
+    let cancelSpy: any
+
+    beforeEach(async () => {
+      wrapper = factory()
+      cancelSpy = vi.spyOn(wrapper.vm as any, 'cancel')
+
+      await wrapper.vm.$nextTick()
+
+      const event = new KeyboardEvent('keydown', { key: 'Escape' })
+      document.dispatchEvent(event)
+
+      await flushPromises()
+    })
+
+    it('Then it should not call cancel method', () => {
+      expect(cancelSpy).not.toHaveBeenCalled()
+    })
+  })
+
   describe('When multiple dialogs are opened and closed', () => {
     let wrapper: ReturnType<typeof factory>
     const results: boolean[] = []
@@ -380,6 +450,25 @@ describe('Given a ConfirmDialog component', () => {
       expect(wrapper.find('p').text()).toBe(
         'This is a very long message that contains a lot of text and might wrap to multiple lines. It should still be displayed correctly within the dialog without breaking the layout.',
       )
+    })
+  })
+
+  describe('When component is unmounted with event listeners', () => {
+    let wrapper: ReturnType<typeof factory>
+    let removeEventListenerSpy: any
+
+    beforeEach(async () => {
+      removeEventListenerSpy = vi.spyOn(document, 'removeEventListener')
+
+      wrapper = factory()
+      wrapper.vm.open()
+      await wrapper.vm.$nextTick()
+
+      wrapper.unmount()
+    })
+
+    it('Then it should clean up event listeners', () => {
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
     })
   })
 })

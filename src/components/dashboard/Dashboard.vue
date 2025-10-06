@@ -2,7 +2,26 @@
 <template>
   <DashboardSkeleton v-if="isLoading" />
   <CardContainer v-else>
-    <Title size="2xl" tag="h1">{{ texts.dashboard.title }}</Title>
+    <div class="flex justify-between items-center">
+      <Title size="2xl" tag="h1">{{ texts.dashboard.title }}</Title>
+      <Button variant="success" @click="$emit('addTransaction')">
+        <div class="flex items-center gap-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          Add Transaction
+        </div>
+      </Button>
+    </div>
 
     <Divider size="xs" />
 
@@ -42,10 +61,15 @@ import CardContainer from '../shared/card/CardContainer.vue'
 import CardInfo from '../shared/card/CardInfo.vue'
 import Divider from '../shared/Divider.vue'
 import Title from '../shared/Title.vue'
+import Button from '../shared/Button.vue'
 import DashboardSkeleton from './DashboardSkeleton.vue'
 import { useTransactionStore } from '@/stores/transaction'
 import { computed, onMounted } from 'vue'
 import { useNotifications } from '@/composables/useNotifications'
+
+const emit = defineEmits<{
+  addTransaction: []
+}>()
 
 const transactionStore = useTransactionStore()
 const { addNotification } = useNotifications()
