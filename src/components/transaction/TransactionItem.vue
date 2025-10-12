@@ -68,7 +68,7 @@ export interface TransactionItemProps {
 }
 
 const props = withDefaults(defineProps<TransactionItemProps>(), {
-  type: 'neutral',
+  type: 'expense',
   currency: 'BRL',
   locale: 'pt-BR',
   showCurrency: true,

@@ -18,4 +18,4 @@ export type CreateTransactionDTO = Omit<
   'id' | 'createdAt' | 'updatedAt' | 'timestamp'
 >
 
-export type TransactionType = 'income' | 'expense' | 'neutral'
+export type TransactionType = 'income' | 'expense'
