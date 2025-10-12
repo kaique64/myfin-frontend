@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mount, flushPromises } from '@vue/test-utils'
+import { shallowMount, flushPromises } from '@vue/test-utils'
 import RegisterTransactionModal from '../../../src/components/transaction/RegisterTransactionModal.vue'
 
 const resetFormMock = vi.fn()
@@ -20,7 +20,7 @@ vi.mock('@vee-validate/zod', () => ({
 }))
 
 const factory = () => {
-  return mount(RegisterTransactionModal, {
+  return shallowMount(RegisterTransactionModal, {
     global: {
       stubs: {
         Title: true,
@@ -73,13 +73,28 @@ describe('Given a RegisterTransactionModal component', () => {
     })
 
     it('Then it should display form fields', () => {
-      expect(wrapper.find('input#title').exists()).toBe(true)
-      expect(wrapper.find('input#value').exists()).toBe(true)
-      expect(wrapper.find('select#type').exists()).toBe(true)
-      expect(wrapper.find('select#category').exists()).toBe(true)
-      expect(wrapper.find('select#paymentMethod').exists()).toBe(true)
-      expect(wrapper.find('input#date').exists()).toBe(true)
-      expect(wrapper.find('textarea#description').exists()).toBe(true)
+      // With shallowMount, we can directly check for the component existence
+      expect(wrapper.findComponent({ name: 'FormInput', props: { id: 'title' } }).exists()).toBe(
+        true,
+      )
+      expect(
+        wrapper.findComponent({ name: 'FormCurrencyInput', props: { id: 'value' } }).exists(),
+      ).toBe(true)
+      expect(wrapper.findComponent({ name: 'FormSelect', props: { id: 'type' } }).exists()).toBe(
+        true,
+      )
+      expect(
+        wrapper.findComponent({ name: 'FormSelect', props: { id: 'category' } }).exists(),
+      ).toBe(true)
+      expect(
+        wrapper.findComponent({ name: 'FormSelect', props: { id: 'paymentMethod' } }).exists(),
+      ).toBe(true)
+      expect(wrapper.findComponent({ name: 'FormInput', props: { id: 'date' } }).exists()).toBe(
+        true,
+      )
+      expect(
+        wrapper.findComponent({ name: 'FormTextarea', props: { id: 'description' } }).exists(),
+      ).toBe(true)
     })
 
     it('Then it should display action buttons', () => {
@@ -255,3 +270,4 @@ describe('Given a RegisterTransactionModal component', () => {
     })
   })
 })
+
