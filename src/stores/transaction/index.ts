@@ -45,6 +45,24 @@ export const useTransactionStore = defineStore('transaction', () => {
     }
   }
 
+  async function updateTransaction(
+    id: string,
+    transaction: CreateTransactionDTO,
+  ): Promise<TransactionDTO | undefined> {
+    try {
+      const response = await transactionRestClient.put<TransactionDTO, CreateTransactionDTO>({
+        url: `/transactions/${id}`,
+        payload: transaction,
+      })
+
+      await getAllTransactions()
+
+      return response?.data
+    } catch (error) {
+      throw error
+    }
+  }
+
   async function getAllTransactions(): Promise<void> {
     try {
       isLoading.value = true
@@ -94,6 +112,7 @@ export const useTransactionStore = defineStore('transaction', () => {
 
   return {
     saveTransaction,
+    updateTransaction,
     getAllTransactions,
     getTransactionDashboard,
     deleteTransaction,
@@ -102,3 +121,4 @@ export const useTransactionStore = defineStore('transaction', () => {
     isLoading,
   }
 })
+

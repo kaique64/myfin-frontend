@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { shallowMount, flushPromises } from '@vue/test-utils'
-import RegisterTransactionModal from '../../../src/components/transaction/RegisterTransactionModal.vue'
+import EditTransactionModal from '../../../src/components/transaction/EditTransactionModal.vue'
+import type { TransactionDTO } from '../../../src/shared/types/transaction'
 
 const resetFormMock = vi.fn()
+const setValuesMock = vi.fn()
 
 const defineFieldMock = vi.fn((fieldName) => {
   if (fieldName === 'amount') {
@@ -19,6 +21,7 @@ vi.mock('vee-validate', () => ({
     errors: {},
     setFieldValue: vi.fn(),
     resetForm: resetFormMock,
+    setValues: setValuesMock,
   }),
 }))
 
@@ -26,8 +29,23 @@ vi.mock('@vee-validate/zod', () => ({
   toTypedSchema: vi.fn(),
 }))
 
+const mockTransaction: TransactionDTO = {
+  id: '123',
+  title: 'Test Transaction',
+  amount: 100,
+  type: 'expense',
+  category: 'food',
+  paymentMethod: 'cash',
+  date: '01/01/2023',
+  description: 'Test description',
+  currency: 'BRL',
+  timestamp: 1672531200000,
+  createdAt: '2023-01-01T00:00:00Z',
+  updatedAt: '2023-01-01T00:00:00Z',
+}
+
 const factory = () => {
-  return shallowMount(RegisterTransactionModal, {
+  return shallowMount(EditTransactionModal, {
     global: {
       stubs: {
         Title: true,
@@ -43,7 +61,7 @@ const factory = () => {
   })
 }
 
-describe('Given a RegisterTransactionModal component', () => {
+describe('Given an EditTransactionModal component', () => {
   describe('When rendered initially', () => {
     let wrapper: ReturnType<typeof factory>
 
@@ -56,14 +74,15 @@ describe('Given a RegisterTransactionModal component', () => {
     })
   })
 
-  describe('When open method is called', () => {
+  describe('When open method is called with a transaction', () => {
     let wrapper: ReturnType<typeof factory>
 
     beforeEach(async () => {
       resetFormMock.mockClear()
+      setValuesMock.mockClear()
 
       wrapper = factory()
-      wrapper.vm.open()
+      wrapper.vm.open(mockTransaction)
       await wrapper.vm.$nextTick()
     })
 
@@ -73,6 +92,18 @@ describe('Given a RegisterTransactionModal component', () => {
 
     it('Then it should reset the form', () => {
       expect(resetFormMock).toHaveBeenCalled()
+    })
+
+    it('Then it should set form values from the transaction', () => {
+      expect(setValuesMock).toHaveBeenCalledWith({
+        title: mockTransaction.title,
+        amount: mockTransaction.amount,
+        type: mockTransaction.type,
+        category: mockTransaction.category,
+        paymentMethod: mockTransaction.paymentMethod,
+        date: mockTransaction.date,
+        description: mockTransaction.description,
+      })
     })
 
     it('Then it should display the transaction form', () => {
@@ -118,7 +149,7 @@ describe('Given a RegisterTransactionModal component', () => {
 
     beforeEach(async () => {
       wrapper = factory()
-      wrapper.vm.open()
+      wrapper.vm.open(mockTransaction)
       await wrapper.vm.$nextTick()
 
       wrapper.vm.close()
@@ -127,6 +158,10 @@ describe('Given a RegisterTransactionModal component', () => {
 
     it('Then it should not be visible', () => {
       expect(wrapper.find('.fixed.inset-0').exists()).toBe(false)
+    })
+
+    it('Then it should clear the current transaction', () => {
+      expect((wrapper.vm as any).currentTransaction).toBe(null)
     })
   })
 
@@ -138,7 +173,7 @@ describe('Given a RegisterTransactionModal component', () => {
       wrapper = factory()
       cancelSpy = vi.spyOn(wrapper.vm as any, 'cancel')
 
-      wrapper.vm.open()
+      wrapper.vm.open(mockTransaction)
       await wrapper.vm.$nextTick()
 
       const cancelButton = wrapper.findAllComponents({ name: 'Button' }).at(0)
@@ -156,16 +191,17 @@ describe('Given a RegisterTransactionModal component', () => {
     beforeEach(async () => {
       wrapper = factory()
 
-      wrapper.vm.open()
+      wrapper.vm.open(mockTransaction)
       await wrapper.vm.$nextTick()
 
       await wrapper.find('form').trigger('submit')
     })
 
-    it('Then it should emit submit event', () => {
+    it('Then it should emit submit event with transaction data including id', () => {
       expect(wrapper.emitted('submit')).toEqual([
         [
           {
+            id: mockTransaction.id,
             amount: 0,
             category: undefined,
             date: undefined,
@@ -179,6 +215,23 @@ describe('Given a RegisterTransactionModal component', () => {
     })
   })
 
+  describe('When form is submitted without a current transaction', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(async () => {
+      wrapper = factory()
+
+      wrapper.vm.isOpen = true
+      await wrapper.vm.$nextTick()
+
+      await wrapper.find('form').trigger('submit')
+    })
+
+    it('Then it should not emit submit event', () => {
+      expect(wrapper.emitted('submit')).toBeFalsy()
+    })
+  })
+
   describe('When backdrop is clicked', () => {
     let wrapper: ReturnType<typeof factory>
     let cancelSpy: any
@@ -187,7 +240,7 @@ describe('Given a RegisterTransactionModal component', () => {
       wrapper = factory()
       cancelSpy = vi.spyOn(wrapper.vm as any, 'cancel')
 
-      wrapper.vm.open()
+      wrapper.vm.open(mockTransaction)
       await wrapper.vm.$nextTick()
 
       await wrapper.find('#backdrop').trigger('click')
@@ -204,7 +257,7 @@ describe('Given a RegisterTransactionModal component', () => {
     beforeEach(async () => {
       wrapper = factory()
 
-      wrapper.vm.open()
+      wrapper.vm.open(mockTransaction)
       await wrapper.vm.$nextTick()
 
       const event = new KeyboardEvent('keydown', { key: 'Escape' })
@@ -226,7 +279,7 @@ describe('Given a RegisterTransactionModal component', () => {
       wrapper = factory()
       cancelSpy = vi.spyOn(wrapper.vm as any, 'cancel')
 
-      wrapper.vm.open()
+      wrapper.vm.open(mockTransaction)
       await wrapper.vm.$nextTick()
 
       const event = new KeyboardEvent('keydown', { key: 'Enter' })
@@ -269,7 +322,7 @@ describe('Given a RegisterTransactionModal component', () => {
       removeEventListenerSpy = vi.spyOn(document, 'removeEventListener')
 
       wrapper = factory()
-      wrapper.vm.open()
+      wrapper.vm.open(mockTransaction)
       await wrapper.vm.$nextTick()
 
       wrapper.unmount()

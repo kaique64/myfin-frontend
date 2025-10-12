@@ -4,6 +4,7 @@ import { useTransactionStore } from '../../../src/stores/transaction'
 
 const mockGet = vi.fn()
 const mockPost = vi.fn()
+const mockPut = vi.fn()
 const mockDelete = vi.fn()
 
 vi.mock('../../../src/http/clients/transaction/TransactionRestClient', () => {
@@ -12,6 +13,7 @@ vi.mock('../../../src/http/clients/transaction/TransactionRestClient', () => {
       return {
         get: mockGet,
         post: mockPost,
+        put: mockPut,
         delete: mockDelete,
       }
     }),
@@ -188,6 +190,74 @@ describe('Given useTransactionStore', () => {
       mockPost.mockRejectedValueOnce(error)
 
       await expect(store.saveTransaction(newTransaction)).rejects.toThrow()
+    })
+  })
+
+  describe('When calling updateTransaction', () => {
+    it('Then it should update a transaction and refresh the list', async () => {
+      const transactionId = '1'
+      const updatedTransaction = {
+        amount: 120,
+        title: 'Updated Coffee',
+        currency: 'BRL',
+        type: 'expense',
+        category: 'food',
+        paymentMethod: 'cash',
+        description: 'Updated morning coffee',
+        date: '17/01/2024',
+      }
+
+      const responseTransaction = {
+        id: transactionId,
+        ...updatedTransaction,
+        timestamp: 1705507200,
+        createdAt: '2024-01-17T10:00:00Z',
+        updatedAt: '2024-01-17T12:00:00Z',
+      }
+
+      mockPut.mockResolvedValueOnce({
+        data: responseTransaction,
+      })
+
+      mockGet.mockResolvedValueOnce({
+        data: {
+          data: [responseTransaction],
+          filters: { category: '', title: '' },
+          pagination: { count: 1, limit: 10, skip: 0 },
+        },
+      })
+
+      const result = await store.updateTransaction(transactionId, updatedTransaction)
+
+      expect(mockPut).toHaveBeenCalledWith({
+        url: `/transactions/${transactionId}`,
+        payload: updatedTransaction,
+      })
+
+      expect(mockGet).toHaveBeenCalledWith({
+        url: '/transactions',
+      })
+
+      expect(result).toEqual(responseTransaction)
+    })
+
+    it('Then it should handle API errors when updating', async () => {
+      const transactionId = '1'
+      const updatedTransaction = {
+        amount: 120,
+        title: 'Updated Coffee',
+        currency: 'BRL',
+        type: 'expense',
+        category: 'food',
+        paymentMethod: 'cash',
+        description: 'Updated morning coffee',
+        date: '17/01/2024',
+      }
+
+      const error = new Error('API Error')
+      mockPut.mockRejectedValueOnce(error)
+
+      await expect(store.updateTransaction(transactionId, updatedTransaction)).rejects.toThrow()
     })
   })
 

@@ -19,6 +19,7 @@
     />
 
     <RegisterTransactionModal ref="registerTransactionModal" @submit="handleRegisterTransaction" />
+    <EditTransactionModal ref="editTransactionModal" @submit="handleUpdateTransaction" />
   </div>
 </template>
 
@@ -29,6 +30,7 @@ import type { CreateTransactionDTO, TransactionDTO } from '@/shared/types/transa
 import TransactionList from '@/components/transaction/TransactionList.vue'
 import ConfirmDialog from '@/components/shared/ConfirmDialog.vue'
 import RegisterTransactionModal from '@/components/transaction/RegisterTransactionModal.vue'
+import EditTransactionModal from '@/components/transaction/EditTransactionModal.vue'
 import { useTransactionStore } from '@/stores/transaction'
 import { useNotifications } from '@/composables/useNotifications'
 import type { TransactionForm } from '@/schemas/transaction'
@@ -38,6 +40,7 @@ const { addNotification } = useNotifications()
 const isDeletingTransaction = ref(false)
 const confirmDialog = ref<InstanceType<typeof ConfirmDialog> | null>(null)
 const registerTransactionModal = ref<InstanceType<typeof RegisterTransactionModal> | null>(null)
+const editTransactionModal = ref<InstanceType<typeof EditTransactionModal> | null>(null)
 
 const transactions = computed(() => transactionStore.transactions)
 const isLoading = computed(() => transactionStore.isLoading)
@@ -93,7 +96,36 @@ async function handleRegisterTransaction(form: TransactionForm) {
 }
 
 function handleEditTransaction(transaction: TransactionDTO) {
-  console.log('Edit transaction:', transaction)
+  editTransactionModal.value?.open(transaction)
+}
+
+async function handleUpdateTransaction(form: TransactionForm & { id: string }) {
+  try {
+    const transaction: CreateTransactionDTO = {
+      amount: form.amount,
+      title: form.title || 'Transação',
+      currency: 'BRL',
+      type: form.type,
+      category: form.category,
+      paymentMethod: form.paymentMethod,
+      description: form.description,
+      date: form.date,
+    }
+
+    await transactionStore.updateTransaction(form.id, transaction)
+    addNotification({
+      message: 'Transaction updated successfully',
+      variant: 'success',
+    })
+    await transactionStore.getAllTransactions()
+    await transactionStore.getTransactionDashboard()
+  } catch (error) {
+    console.log('error:', error)
+    addNotification({
+      message: 'Failed to update transaction',
+      variant: 'danger',
+    })
+  }
 }
 
 async function handleDeleteTransaction(transaction: TransactionDTO) {

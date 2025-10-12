@@ -38,6 +38,7 @@ export const texts = {
       description: 'Descrição (Opcional)',
       descriptionPlaceholder: 'Digite uma descrição para a transação...',
       save: 'Salvar',
+      cancel: 'Cancelar',
       validation: {
         titleRequired: 'O título é obrigatório',
         amountRequired: 'O valor é obrigatório',
@@ -47,6 +48,9 @@ export const texts = {
         paymentMethodRequired: 'A forma de pagamento é obrigatória',
         dateRequired: 'A data é obrigatória',
       },
+    },
+    edit: {
+      title: 'Edit Transaction',
     },
   },
 }

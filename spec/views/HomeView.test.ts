@@ -9,9 +9,11 @@ const getAllTransactionsMock = vi.fn().mockResolvedValue([])
 const getTransactionDashboardMock = vi.fn().mockResolvedValue({})
 const saveTransactionMock = vi.fn().mockResolvedValue({})
 const deleteTransactionMock = vi.fn().mockResolvedValue({})
+const updateTransactionMock = vi.fn().mockResolvedValue({})
 
 const confirmDialogOpenMock = vi.fn().mockResolvedValue(true)
 const registerTransactionModalOpenMock = vi.fn()
+const editTransactionModalOpenMock = vi.fn()
 
 vi.mock('../../src/components/dashboard/Dashboard.vue', () => ({
   default: {
@@ -42,6 +44,13 @@ vi.mock('../../src/components/transaction/RegisterTransactionModal.vue', () => (
   },
 }))
 
+vi.mock('../../src/components/transaction/EditTransactionModal.vue', () => ({
+  default: {
+    name: 'EditTransactionModal',
+    template: '<div class="edit-transaction-modal-mock"></div>',
+  },
+}))
+
 vi.mock('../../src/stores/transaction', () => ({
   useTransactionStore: () => ({
     transactions: [],
@@ -50,6 +59,7 @@ vi.mock('../../src/stores/transaction', () => ({
     getTransactionDashboard: getTransactionDashboardMock,
     saveTransaction: saveTransactionMock,
     deleteTransaction: deleteTransactionMock,
+    updateTransaction: updateTransactionMock,
   }),
 }))
 
@@ -86,6 +96,12 @@ const mockTransactionForm: TransactionForm = {
   description: 'Test description',
 }
 
+const mockUpdateTransactionForm = {
+  ...mockTransactionForm,
+  id: '1',
+  date: '15/02/2023',
+}
+
 const factory = () => {
   const wrapper = mount(HomeView)
 
@@ -95,6 +111,9 @@ const factory = () => {
   }
   if (vm.registerTransactionModal) {
     vm.registerTransactionModal.open = registerTransactionModalOpenMock
+  }
+  if (vm.editTransactionModal) {
+    vm.editTransactionModal.open = editTransactionModalOpenMock
   }
 
   return wrapper
@@ -127,6 +146,10 @@ describe('Given a HomeView component', () => {
 
     it('Then it should render the RegisterTransactionModal component', () => {
       expect(wrapper.find('.register-transaction-modal-mock').exists()).toBe(true)
+    })
+
+    it('Then it should render the EditTransactionModal component', () => {
+      expect(wrapper.find('.edit-transaction-modal-mock').exists()).toBe(true)
     })
 
     it('Then it should call getAllTransactions from the store', () => {
@@ -308,11 +331,8 @@ describe('Given a HomeView component', () => {
 
   describe('When edit event is emitted from TransactionList', () => {
     let wrapper: ReturnType<typeof factory>
-    let consoleLogSpy: any
 
     beforeEach(async () => {
-      consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-
       wrapper = factory()
       await flushPromises()
 
@@ -321,12 +341,83 @@ describe('Given a HomeView component', () => {
       await wrapper.vm.$nextTick()
     })
 
+    it('Then it should open the EditTransactionModal with the transaction', () => {
+      expect(editTransactionModalOpenMock).toHaveBeenCalledWith(mockTransactions[0])
+    })
+  })
+
+  describe('When an updated transaction form is submitted', () => {
+    let wrapper: ReturnType<typeof factory>
+
+    beforeEach(async () => {
+      wrapper = factory()
+      await flushPromises()
+
+      const modal = wrapper.findComponent({ name: 'EditTransactionModal' })
+      modal.vm.$emit('submit', mockUpdateTransactionForm)
+      await flushPromises()
+    })
+
+    it('Then it should call updateTransaction from the store', () => {
+      expect(updateTransactionMock).toHaveBeenCalledWith(
+        '1',
+        expect.objectContaining({
+          amount: mockUpdateTransactionForm.amount,
+          title: mockUpdateTransactionForm.title,
+          type: mockUpdateTransactionForm.type,
+          category: mockUpdateTransactionForm.category,
+          paymentMethod: mockUpdateTransactionForm.paymentMethod,
+          date: mockUpdateTransactionForm.date,
+          description: mockUpdateTransactionForm.description,
+        }),
+      )
+    })
+
+    it('Then it should call getAllTransactions from the store', () => {
+      expect(getAllTransactionsMock).toHaveBeenCalled()
+    })
+
+    it('Then it should call getTransactionDashboard from the store', () => {
+      expect(getTransactionDashboardMock).toHaveBeenCalled()
+    })
+
+    it('Then it should show a success notification', () => {
+      expect(addNotificationMock).toHaveBeenCalledWith({
+        message: 'Transaction updated successfully',
+        variant: 'success',
+      })
+    })
+  })
+
+  describe('When updateTransaction fails', () => {
+    let wrapper: ReturnType<typeof factory>
+    let consoleLogSpy: any
+
+    beforeEach(async () => {
+      consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      updateTransactionMock.mockRejectedValueOnce(new Error('Failed to update'))
+
+      wrapper = factory()
+      await flushPromises()
+
+      const modal = wrapper.findComponent({ name: 'EditTransactionModal' })
+      modal.vm.$emit('submit', mockUpdateTransactionForm)
+      await flushPromises()
+    })
+
     afterEach(() => {
       consoleLogSpy.mockRestore()
     })
 
-    it('Then it should log the transaction to be edited', () => {
-      expect(consoleLogSpy).toHaveBeenCalledWith('Edit transaction:', mockTransactions[0])
+    it('Then it should show an error notification', () => {
+      expect(addNotificationMock).toHaveBeenCalledWith({
+        message: 'Failed to update transaction',
+        variant: 'danger',
+      })
+    })
+
+    it('Then it should log the error', () => {
+      expect(consoleLogSpy).toHaveBeenCalled()
     })
   })
 
@@ -371,4 +462,3 @@ describe('Given a HomeView component', () => {
     })
   })
 })
-
