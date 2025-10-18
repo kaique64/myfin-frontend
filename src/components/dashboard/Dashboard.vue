@@ -47,11 +47,6 @@
       <h2 class="text-xl font-semibold text-gray-700 text-center mb-6">
         {{ texts.dashboard.charts.chartTitle }}
       </h2>
-      <!-- <div class="flex justify-center items-center h-64">
-        <div class="text-gray-400 text-center">
-          <p class="text-sm">{{ texts.dashboard.charts.chartPlaceholder }}</p>
-        </div>
-      </div> -->
     </div>
     <BalanceChart :transactions="transactions" />
     
