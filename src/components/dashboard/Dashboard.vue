@@ -43,16 +43,18 @@
       />
     </div>
 
-    <div class="mt-8 p-6 bg-white rounded-lg border border-gray-200">
+    <div class="mt-8 p-6 bg-white">
       <h2 class="text-xl font-semibold text-gray-700 text-center mb-6">
         {{ texts.dashboard.charts.chartTitle }}
       </h2>
-      <div class="flex justify-center items-center h-64">
+      <!-- <div class="flex justify-center items-center h-64">
         <div class="text-gray-400 text-center">
           <p class="text-sm">{{ texts.dashboard.charts.chartPlaceholder }}</p>
         </div>
-      </div>
+      </div> -->
     </div>
+    <BalanceChart :transactions="transactions" />
+    
   </CardContainer>
 </template>
 <script setup lang="ts">
@@ -66,6 +68,7 @@ import DashboardSkeleton from './DashboardSkeleton.vue'
 import { useTransactionStore } from '@/stores/transaction'
 import { computed, onMounted } from 'vue'
 import { useNotifications } from '@/composables/useNotifications'
+import BalanceChart from '../BalanceChart.vue'
 
 const emit = defineEmits<{
   addTransaction: []
@@ -74,6 +77,7 @@ const emit = defineEmits<{
 const transactionStore = useTransactionStore()
 const { addNotification } = useNotifications()
 
+const transactions = computed(() => transactionStore.transactionDashboard?.transactions || [])
 const isLoading = computed(() => transactionStore.isLoading)
 
 const transactionDashboardData = computed(() => {

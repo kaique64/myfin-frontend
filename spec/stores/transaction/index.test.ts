@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useTransactionStore } from '../../../src/stores/transaction'
+import { CreateTransactionDTO } from '../../../src/shared/types/transaction'
 
 const mockGet = vi.fn()
 const mockPost = vi.fn()
@@ -129,7 +130,7 @@ describe('Given useTransactionStore', () => {
 
   describe('When calling saveTransaction', () => {
     it('Then it should create a transaction and refresh the list', async () => {
-      const newTransaction = {
+      const newTransaction: CreateTransactionDTO = {
         amount: 100,
         title: 'Coffee',
         currency: 'BRL',
@@ -175,7 +176,7 @@ describe('Given useTransactionStore', () => {
     })
 
     it('Then it should handle API errors when saving', async () => {
-      const newTransaction = {
+      const newTransaction: CreateTransactionDTO = {
         amount: 100,
         title: 'Coffee',
         currency: 'BRL',
@@ -302,11 +303,19 @@ describe('Given useTransactionStore', () => {
         totalAmount: 3500,
       }
 
-      const mockResponse = {
-        data: mockDashboardData,
+      const mockTransactionsData = {
+        data: [{ id: 1, type: 'income', amount: 500 }],
       }
 
-      mockGet.mockResolvedValueOnce(mockResponse)
+      const expected = {
+        ...mockTransactionsData,
+        ...mockDashboardData,
+      }
+
+      mockGet.mockResolvedValueOnce({
+        data: mockDashboardData,
+      })
+      mockGet.mockResolvedValueOnce({ data: mockTransactionsData })
 
       await store.getTransactionDashboard()
 
@@ -314,7 +323,14 @@ describe('Given useTransactionStore', () => {
         url: '/transactions/dashboard',
       })
 
-      expect(store.transactionDashboard).toEqual(mockDashboardData)
+      expect(mockGet).toHaveBeenCalledWith({
+        url: '/transactions?skip=0&limit=0',
+      })
+
+      expect(store.transactionDashboard).toEqual({
+        ...mockDashboardData,
+        transactions: mockTransactionsData.data,
+      })
       expect(store.isLoading).toBe(false)
     })
 

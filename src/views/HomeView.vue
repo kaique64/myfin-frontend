@@ -38,11 +38,12 @@ import type { TransactionForm } from '@/schemas/transaction'
 const transactionStore = useTransactionStore()
 const { addNotification } = useNotifications()
 const isDeletingTransaction = ref(false)
+const transactions = computed(() => transactionStore.transactions)
+
 const confirmDialog = ref<InstanceType<typeof ConfirmDialog> | null>(null)
 const registerTransactionModal = ref<InstanceType<typeof RegisterTransactionModal> | null>(null)
 const editTransactionModal = ref<InstanceType<typeof EditTransactionModal> | null>(null)
 
-const transactions = computed(() => transactionStore.transactions)
 const isLoading = computed(() => transactionStore.isLoading)
 
 onMounted(async () => {

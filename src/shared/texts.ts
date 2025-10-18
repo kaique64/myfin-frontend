@@ -2,7 +2,7 @@ export const texts = {
   dashboard: {
     title: 'Dashboard',
     charts: {
-      chartTitle: 'Despesas por Categoria',
+      chartTitle: 'Evolução do Saldo vs. Despesas',
       chartPlaceholder: 'Gráfico será implementado',
     },
     currentBalance: 'Saldo Atual',

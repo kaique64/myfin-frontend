@@ -20,6 +20,7 @@ export interface TransactionDashboardResponse {
   incomeAmount: number
   expenseAmount: number
   totalAmount: number
+  transactions: TransactionDTO[]
 }
 
 export const useTransactionStore = defineStore('transaction', () => {
@@ -99,9 +100,13 @@ export const useTransactionStore = defineStore('transaction', () => {
       const response = await transactionRestClient.get<TransactionDashboardResponse>({
         url: '/transactions/dashboard',
       })
+      
+      const transactions = await transactionRestClient.get<TransactionsResponse>({
+        url: '/transactions?skip=0&limit=0',
+      })
 
-      if (response?.data) {
-        transactionDashboard.value = response.data
+      if (response?.data && transactions?.data) {
+        transactionDashboard.value = { ...response.data, transactions: [...transactions.data.data] }
       }
     } catch (error) {
       throw error
