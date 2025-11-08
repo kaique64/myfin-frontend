@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, vi, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import TransactionList from '../../../src/components/transaction/TransactionList.vue'
@@ -78,7 +77,7 @@ describe('Given a TransactionList component', () => {
     })
 
     it('Then it should not display empty state message', () => {
-      expect(wrapper.text()).not.toContain('No transactions found')
+      expect(wrapper.text()).not.toContain('Nenhuma transação')
     })
 
     it('Then it should not render transaction items', () => {
@@ -94,7 +93,7 @@ describe('Given a TransactionList component', () => {
     })
 
     it('Then it should display empty state message', () => {
-      expect(wrapper.text()).toContain('No transactions found')
+      expect(wrapper.text()).toContain('Nenhuma transação')
     })
 
     it('Then it should not display loading message', () => {
@@ -122,11 +121,11 @@ describe('Given a TransactionList component', () => {
     })
 
     it('Then it should not display empty state message', () => {
-      expect(wrapper.text()).not.toContain('No transactions found')
+      expect(wrapper.text()).not.toContain('Nenhuma transação')
     })
 
     it('Then it should display the title', () => {
-      expect(wrapper.text()).toContain('Transactions')
+      expect(wrapper.text()).toContain('Transações')
     })
   })
 
