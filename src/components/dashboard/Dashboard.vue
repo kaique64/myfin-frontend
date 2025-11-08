@@ -18,7 +18,7 @@
               clip-rule="evenodd"
             />
           </svg>
-          Add Transaction
+          Adicionar
         </div>
       </Button>
     </div>
@@ -49,7 +49,6 @@
       </h2>
     </div>
     <BalanceChart :transactions="transactions" />
-    
   </CardContainer>
 </template>
 <script setup lang="ts">

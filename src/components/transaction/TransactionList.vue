@@ -3,11 +3,11 @@
 
   <div v-else class="bg-white rounded-lg shadow">
     <div class="p-6 border-b border-gray-200">
-      <h2 class="text-xl font-semibold text-gray-800">Transactions</h2>
+      <h2 class="text-xl font-semibold text-gray-800">Transações</h2>
     </div>
 
     <div v-if="transactions.length === 0" class="p-6 text-center">
-      <p class="text-gray-500">No transactions found</p>
+      <p class="text-gray-500">Nenhuma transação</p>
     </div>
 
     <div v-else>
@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import type { TransactionDTO } from '@/shared/types/transaction'
 import TransactionItem from '@/components/transaction/TransactionItem.vue'
-import TransactionListSkeleton from './TransactionListSkeleton.vue';
+import TransactionListSkeleton from './TransactionListSkeleton.vue'
 
 defineProps<{
   transactions: TransactionDTO[]
