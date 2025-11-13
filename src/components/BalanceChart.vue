@@ -6,6 +6,7 @@
     <div v-else>
       <apexchart
         height="350"
+        type="bar"
         :options="chartOptions"
         :series="chartSeries"
       ></apexchart>
@@ -28,28 +29,46 @@ const props = defineProps({
 
 const hasTransactions = computed(() => props.transactions.length > 0)
 
+const parseDate = (dateString: string): Date => {
+  if (dateString.includes('-') && dateString.split('-')[0].length === 4) {
+    const parts = dateString.split('-')
+    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]))
+  }
+
+  const parts = dateString.split('/')
+  if (parts.length === 3) {
+    const day = parseInt(parts[0], 10)
+    const month = parseInt(parts[1], 10) - 1 // mês começa em 0
+    const year = parseInt(parts[2], 10)
+    return new Date(year, month, day)
+  }
+
+  return new Date(dateString)
+}
+
 const chartSeries = computed(() => {
   if (!hasTransactions.value) return []
 
-  const monthlyTotals: Record<string, { income: number; expense: number }> = {}
+  const dailyTotals: Record<string, { income: number; expense: number }> = {}
 
   for (const t of props.transactions) {
-    const date = new Date(t.date)
+    const date = parseDate(t.date)
     if (isNaN(date.getTime())) continue
 
     const year = date.getFullYear()
     const month = String(date.getMonth() + 1).padStart(2, '0')
-    const key = `${year}-${month}`
+    const day = String(date.getDate()).padStart(2, '0')
+    const key = `${year}-${month}-${day}`
 
-    if (!monthlyTotals[key]) {
-      monthlyTotals[key] = { income: 0, expense: 0 }
+    if (!dailyTotals[key]) {
+      dailyTotals[key] = { income: 0, expense: 0 }
     }
 
-    if (t.type === 'income') monthlyTotals[key].income += t.amount
-    else if (t.type === 'expense') monthlyTotals[key].expense += t.amount
+    if (t.type === 'income') dailyTotals[key].income += t.amount
+    else if (t.type === 'expense') dailyTotals[key].expense += t.amount
   }
 
-  const sortedKeys = Object.keys(monthlyTotals).sort(
+  const sortedKeys = Object.keys(dailyTotals).sort(
     (a, b) => new Date(a).getTime() - new Date(b).getTime(),
   )
 
@@ -57,11 +76,11 @@ const chartSeries = computed(() => {
   const expenseData: [number, number][] = []
 
   for (const key of sortedKeys) {
-    const [year, month] = key.split('-').map(Number)
-    const timestamp = new Date(year, month - 1, 1).getTime()
+    const [year, month, day] = key.split('-').map(Number)
+    const timestamp = new Date(year, month - 1, day).getTime()
 
-    incomeData.push([timestamp, monthlyTotals[key].income])
-    expenseData.push([timestamp, monthlyTotals[key].expense])
+    incomeData.push([timestamp, dailyTotals[key].income])
+    expenseData.push([timestamp, dailyTotals[key].expense])
   }
 
   return [
@@ -73,7 +92,7 @@ const chartSeries = computed(() => {
 const chartOptions = computed<ApexOptions>(() => ({
   chart: {
     id: 'balance-vs-expense-chart',
-    type: 'area',
+    type: 'bar',
     height: 350,
     zoom: {
       enabled: true,
@@ -83,12 +102,20 @@ const chartOptions = computed<ApexOptions>(() => ({
     },
   },
   colors: ['#3b82f6', '#dc2626'],
+  plotOptions: {
+    bar: {
+      horizontal: false,
+      columnWidth: '55%',
+      borderRadius: 4,
+    },
+  },
   dataLabels: {
     enabled: false,
   },
   stroke: {
-    curve: 'smooth',
+    show: true,
     width: 2,
+    colors: ['transparent'],
   },
   xaxis: {
     type: 'datetime',
@@ -126,19 +153,9 @@ const chartOptions = computed<ApexOptions>(() => ({
       },
     },
   },
-  fill: {
-    type: 'gradient',
-    gradient: {
-      shadeIntensity: 1,
-      opacityFrom: 0.7,
-      opacityTo: 0.3,
-      stops: [0, 90, 100],
-    },
-  },
   legend: {
     position: 'top',
-    horizontalAlign: 'left'
-  }
+    horizontalAlign: 'left',
+  },
 }))
-
 </script>
